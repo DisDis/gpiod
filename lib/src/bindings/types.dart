@@ -1,4 +1,4 @@
-
+import 'dart:convert';
 import 'dart:ffi';
 import 'package:ffi/ffi.dart';
 
@@ -55,7 +55,9 @@ class gpiod_line extends Struct{
 
   //TODO: https://github.com/dart-lang/sdk/issues/35763
   //@InlineArray(32)
-  List<int> get name =>[name0,name1,name2,name3,name4,name5,name6,name7,name8,name9,name10,name11,name12,name13,name14,name15,name16,name17,name18,name19,name20,name21,name22,name23,name24,name25,name26,name27,name28,name29,name30,name31];
+  String get name =>utf8.decode([name0,name1,name2,name3,name4,name5,name6,name7,name8,name9,name10,name11,name12,
+    name13,name14,name15,name16,name17,name18,name19,name20,name21,name22,name23,name24,name25,name26,name27,name28,
+    name29,name30,name31]);
   @Int8()
   int name0;
   @Int8()
@@ -123,7 +125,7 @@ class gpiod_line extends Struct{
 
   //TODO: https://github.com/dart-lang/sdk/issues/35763
   //@InlineArray(32)
-  List<int> get consumer =>[consumer0,consumer1,consumer2,consumer3,consumer4,consumer5,consumer6,consumer7,consumer8,consumer9,consumer10,consumer11,consumer12,consumer13,consumer14,consumer15,consumer16,consumer17,consumer18,consumer19,consumer20,consumer21,consumer22,consumer23,consumer24,consumer25,consumer26,consumer27,consumer28,consumer29,consumer30,consumer31];
+  String get consumer =>utf8.decode([consumer0,consumer1,consumer2,consumer3,consumer4,consumer5,consumer6,consumer7,consumer8,consumer9,consumer10,consumer11,consumer12,consumer13,consumer14,consumer15,consumer16,consumer17,consumer18,consumer19,consumer20,consumer21,consumer22,consumer23,consumer24,consumer25,consumer26,consumer27,consumer28,consumer29,consumer30,consumer31]);
   //@InlineArray(32)
   @Int8() int consumer0;
   @Int8() int consumer1;
@@ -170,7 +172,9 @@ class gpiod_chip extends Struct{
 
   //TODO: https://github.com/dart-lang/sdk/issues/35763
   //@InlineArray(32)
-  List<int> get name =>[name0,name1,name2,name3,name4,name5,name6,name7,name8,name9,name10,name11,name12,name13,name14,name15,name16,name17,name18,name19,name20,name21,name22,name23,name24,name25,name26,name27,name28,name29,name30,name31];
+  String get name =>utf8.decode([name0,name1,name2,name3,name4,name5,name6,name7,name8,name9,name10,name11,name12,
+    name13,name14,name15,name16,name17,name18,name19,name20,name21,name22,name23,name24,name25,name26,name27,name28,
+    name29,name30,name31]);
   @Int8()
   int name0;
   @Int8()
@@ -236,7 +240,9 @@ class gpiod_chip extends Struct{
   @Int8()
   int name31;
 
-  List<int> get label =>[label0,label1,label2,label3,label4,label5,label6,label7,label8,label9,label10,label11,label12,label13,label14,label15,label16,label17,label18,label19,label20,label21,label22,label23,label24,label25,label26,label27,label28,label29,label30,label31];
+  String get label =>utf8.decode([label0,label1,label2,label3,label4,label5,label6,label7,label8,label9,label10,label11,
+    label12,label13,label14,label15,label16,label17,label18,label19,label20,label21,label22,label23,label24,
+    label25,label26,label27,label28,label29,label30,label31]);
   //@InlineArray(32)
   @Int8() int label0;
   @Int8() int label1;
@@ -295,6 +301,11 @@ class gpiod_line_bulk extends Struct{
   //#define GPIOD_LINE_BULK_MAX_LINES	64
   //struct gpiod_line *lines[GPIOD_LINE_BULK_MAX_LINES];
   /**< Buffer for line pointers. */
+  List<Pointer<gpiod_line>> get lines=>[line0,line1,line2,line3,line4,line5,line6,line7,line8,line9,line10,line11,
+    line12,line13,line14,line15,line16,line17,line18,line19,line20,line21,line22,line23,line24,line25,line26,line27,
+    line28,line29,line30,line31,line32,line33,line34,line35,line36,line37,line38,line39,line40,line41,line42,line43,
+    line44,line45,line46,line47,line48,line49,line50,line51,line52,line53,line54,line55,line56,line57,line58,line59,
+    line60,line61,line62,line63];
   Pointer<gpiod_line> line0;
   Pointer<gpiod_line> line1;
   Pointer<gpiod_line> line2;

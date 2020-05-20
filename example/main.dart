@@ -30,12 +30,14 @@ void main() async {
       return;//errno;
     }
 
+    Map<String,Pointer<gpiod_chip>> chips = <String,Pointer<gpiod_chip>>{};
     _log.info('get chips');
     for (var n_chips = 0, n_lines = 0, chip =  gpiod.chip_iter_next_noclose(chipiter);     chip.address != 0;
     n_chips++, chip = gpiod.chip_iter_next_noclose(chipiter))
     {
-      _log.info('${n_chips} ${utf8.decode(chip.ref.name)} ${utf8.decode(chip.ref.label)}');
+      _log.info('${n_chips} ${chip.ref.name} ${chip.ref.label}');
       _log.info('chip.ref.num_lines ${chip.ref.num_lines}');
+      chips[chip.ref.name] = chip;
     }
     gpiod.chip_iter_free_noclose(chipiter);
 
