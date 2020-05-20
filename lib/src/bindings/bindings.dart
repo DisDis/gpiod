@@ -105,7 +105,11 @@ class GPIOD{
     line_consumer = _dynamicLibrary.lookup<NativeFunction<line_consumer_native_t>>("gpiod_line_consumer").asFunction();
     line_direction = _dynamicLibrary.lookup<NativeFunction<line_direction_native_t>>("gpiod_line_direction").asFunction();
     line_active_state = _dynamicLibrary.lookup<NativeFunction<line_active_state_native_t>>("gpiod_line_active_state").asFunction();
-    line_bias = _dynamicLibrary.lookup<NativeFunction<line_bias_native_t>>("gpiod_line_bias").asFunction();
+    try {
+      line_bias = _dynamicLibrary.lookup<NativeFunction<line_bias_native_t>>("gpiod_line_bias").asFunction();
+    } catch (e, st){
+      print('gpiod: bias is not supported, not found "gpiod_line_bias"');
+    }
 //    line_is_used = _dynamicLibrary.lookup<NativeFunction<line_is_used_native_t>>("gpiod_line_is_used").asFunction();
 //    line_is_open_drain = _dynamicLibrary.lookup<NativeFunction<line_is_open_drain_native_t>>("gpiod_line_is_open_drain").asFunction();
 //    line_is_open_source = _dynamicLibrary.lookup<NativeFunction<line_is_open_source_native_t>>("gpiod_line_is_open_source").asFunction();
@@ -116,7 +120,12 @@ class GPIOD{
 //    line_is_free = _dynamicLibrary.lookup<NativeFunction<line_is_free_native_t>>("gpiod_line_is_free").asFunction();
     line_get_value = _dynamicLibrary.lookup<NativeFunction<line_get_value_native_t>>("gpiod_line_get_value").asFunction();
     line_set_value = _dynamicLibrary.lookup<NativeFunction<line_set_value_native_t>>("gpiod_line_set_value").asFunction();
-    line_set_config = _dynamicLibrary.lookup<NativeFunction<line_set_config_native_t>>("gpiod_line_set_config").asFunction();
+    try {
+      line_set_config =
+          _dynamicLibrary.lookup<NativeFunction<line_set_config_native_t>>("gpiod_line_set_config").asFunction();
+    } catch (e, st){
+      print('gpiod: not found "gpiod_line_set_config"');
+    }
     line_event_wait_bulk = _dynamicLibrary.lookup<NativeFunction<line_event_wait_bulk_native_t>>("gpiod_line_event_wait_bulk").asFunction();
     line_event_read = _dynamicLibrary.lookup<NativeFunction<line_event_read_native_t>>("gpiod_line_event_read").asFunction();
     line_event_get_fd = _dynamicLibrary.lookup<NativeFunction<line_event_get_fd_native_t>>("gpiod_line_event_get_fd").asFunction();
