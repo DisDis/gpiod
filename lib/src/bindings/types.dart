@@ -57,7 +57,7 @@ class gpiod_line extends Struct{
   //@InlineArray(32)
   String get name =>utf8.decode([name0,name1,name2,name3,name4,name5,name6,name7,name8,name9,name10,name11,name12,
     name13,name14,name15,name16,name17,name18,name19,name20,name21,name22,name23,name24,name25,name26,name27,name28,
-    name29,name30,name31]);
+    name29,name30,name31],allowMalformed: true);
   @Int8()
   int name0;
   @Int8()
@@ -125,7 +125,10 @@ class gpiod_line extends Struct{
 
   //TODO: https://github.com/dart-lang/sdk/issues/35763
   //@InlineArray(32)
-  String get consumer =>utf8.decode([consumer0,consumer1,consumer2,consumer3,consumer4,consumer5,consumer6,consumer7,consumer8,consumer9,consumer10,consumer11,consumer12,consumer13,consumer14,consumer15,consumer16,consumer17,consumer18,consumer19,consumer20,consumer21,consumer22,consumer23,consumer24,consumer25,consumer26,consumer27,consumer28,consumer29,consumer30,consumer31]);
+  String get consumer =>utf8.decode([consumer0,consumer1,consumer2,consumer3,consumer4,consumer5,consumer6,consumer7,
+    consumer8,consumer9,consumer10,consumer11,consumer12,consumer13,consumer14,consumer15,consumer16,consumer17,
+    consumer18,consumer19,consumer20,consumer21,consumer22,consumer23,consumer24,consumer25,consumer26,consumer27,
+    consumer28,consumer29,consumer30,consumer31],allowMalformed: true);
   //@InlineArray(32)
   @Int8() int consumer0;
   @Int8() int consumer1;
@@ -174,7 +177,7 @@ class gpiod_chip extends Struct{
   //@InlineArray(32)
   String get name =>utf8.decode([name0,name1,name2,name3,name4,name5,name6,name7,name8,name9,name10,name11,name12,
     name13,name14,name15,name16,name17,name18,name19,name20,name21,name22,name23,name24,name25,name26,name27,name28,
-    name29,name30,name31]);
+    name29,name30,name31],allowMalformed: true);
   @Int8()
   int name0;
   @Int8()
@@ -242,7 +245,7 @@ class gpiod_chip extends Struct{
 
   String get label =>utf8.decode([label0,label1,label2,label3,label4,label5,label6,label7,label8,label9,label10,label11,
     label12,label13,label14,label15,label16,label17,label18,label19,label20,label21,label22,label23,label24,
-    label25,label26,label27,label28,label29,label30,label31]);
+    label25,label26,label27,label28,label29,label30,label31],allowMalformed: true);
   //@InlineArray(32)
   @Int8() int label0;
   @Int8() int label1;

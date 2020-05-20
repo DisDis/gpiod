@@ -1,7 +1,7 @@
 name: gpiod
 description:
   FFI for libgpiod
-version: 0.0.1
+version: 0.0.2+1
 repository: https://github.com/DisDis/gpiod
 
 environment:
