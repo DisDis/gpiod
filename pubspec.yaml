@@ -9,7 +9,7 @@ environment:
 
 dependencies:
   logging: ^0.11.0
-  ffi: 0.1.3
+  ffi: ^0.1.3
 
 #dev_dependencies:
 
