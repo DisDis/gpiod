@@ -1,3 +1,15 @@
+/// Whether there should be pull-up or -down
+/// resistors connected to the line.
+enum Bias { disable, pullUp, pullDown }
+
+/// Whether the line should be high voltage when
+/// it's active or low voltage.
+enum ActiveState { high, low }
+
+/// It's a rising edge when the voltage goes from low to high,
+/// falling from high to low.
+enum SignalEdge { rising, falling }
+
 /**
  * @brief Available types of requests.
  */
@@ -47,21 +59,21 @@ class LineRequestFlag {
 
   //GPIOD_LINE_REQUEST_FLAG_OPEN_SOURCE	= GPIOD_BIT(1),
   /**< The line is an open-source port. */
-  static const LineRequestFlag GPIOD_LINE_REQUEST_FLAG_OPEN_SOURCE = const LineRequestFlag._internal(2);
+  static const LineRequestFlag GPIOD_LINE_REQUEST_FLAG_OPEN_SOURCE = const LineRequestFlag._internal(1);
 
 //	GPIOD_LINE_REQUEST_FLAG_ACTIVE_LOW	= GPIOD_BIT(2),
   /**< The active state of the line is low (high is the default). */
-  static const LineRequestFlag GPIOD_LINE_REQUEST_FLAG_ACTIVE_LOW = const LineRequestFlag._internal(4);
+  static const LineRequestFlag GPIOD_LINE_REQUEST_FLAG_ACTIVE_LOW = const LineRequestFlag._internal(2);
 
 //	GPIOD_LINE_REQUEST_FLAG_BIAS_DISABLE	= GPIOD_BIT(3),
   /**< The line has neither either pull-up nor pull-down resistor. */
-  static const LineRequestFlag GPIOD_LINE_REQUEST_FLAG_BIAS_DISABLE = const LineRequestFlag._internal(8);
+  static const LineRequestFlag GPIOD_LINE_REQUEST_FLAG_BIAS_DISABLE = const LineRequestFlag._internal(4);
 
 //	GPIOD_LINE_REQUEST_FLAG_BIAS_PULL_DOWN	= GPIOD_BIT(4),
   /**< The line has pull-down resistor enabled. */
-  static const LineRequestFlag GPIOD_LINE_REQUEST_FLAG_BIAS_PULL_DOWN = const LineRequestFlag._internal(16);
+  static const LineRequestFlag GPIOD_LINE_REQUEST_FLAG_BIAS_PULL_DOWN = const LineRequestFlag._internal(8);
 
 //	GPIOD_LINE_REQUEST_FLAG_BIAS_PULL_UP	= GPIOD_BIT(5),
   /**< The line has pull-up resistor enabled. */
-  static const LineRequestFlag GPIOD_LINE_REQUEST_FLAG_BIAS_PULL_UP = const LineRequestFlag._internal(32);
+  static const LineRequestFlag GPIOD_LINE_REQUEST_FLAG_BIAS_PULL_UP = const LineRequestFlag._internal(16);
 }

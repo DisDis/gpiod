@@ -285,7 +285,7 @@ class gpiod_chip_iter extends Struct{
 
 }
 
-class gpiod_line_request_config extends Struct{
+class gpiod_line_request_config extends Struct {
 
   /**< Name of the consumer. */
   Pointer<Utf8> consumer;
@@ -297,6 +297,12 @@ class gpiod_line_request_config extends Struct{
   @Int32()
   /**< Other configuration flags. */
   int flags;
+
+  factory gpiod_line_request_config.allocate(Pointer<Utf8> consumer, int request_type, int flags) =>
+      allocate<gpiod_line_request_config>().ref
+        ..consumer = consumer
+        ..request_type = request_type
+        ..flags = flags;
 }
 
 class gpiod_line_bulk extends Struct{
