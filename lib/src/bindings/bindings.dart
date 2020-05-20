@@ -27,13 +27,13 @@ class GPIOD{
   int Function(Pointer<gpiod_line> line) line_active_state;
   ///int (*line_bias)(struct gpiod_line *line);
   int Function(Pointer<gpiod_line> line) line_bias;
+  //FIXME: FFI does'n support bool??? https://github.com/dart-lang/sdk/issues/36855
   ///bool (*line_is_used)(struct gpiod_line *line);
-  //FIXME: FFI does'n support bool???
-//  bool Function(Pointer<gpiod_line> line) line_is_used;
+  int/*bool*/ Function(Pointer<gpiod_line> line) line_is_used;
   ///bool (*line_is_open_drain)(struct gpiod_line *line);
-//  bool Function(Pointer<gpiod_line> line) line_is_open_drain;
+  int/*bool*/ Function(Pointer<gpiod_line> line) line_is_open_drain;
   ///bool (*line_is_open_source)(struct gpiod_line *line);
-//  bool Function(Pointer<gpiod_line> line) line_is_open_source;
+  int/*bool*/ Function(Pointer<gpiod_line> line) line_is_open_source;
   ///int (*line_update)(struct gpiod_line *line);
   int Function(Pointer<gpiod_line> line) line_update;
   ///int (*line_request)(struct gpiod_line *line, const struct gpiod_line_request_config *config, int default_val);
@@ -41,9 +41,9 @@ class GPIOD{
   ///int (*line_release)(struct gpiod_line *line);
   int Function(Pointer<gpiod_line> line) line_release;
   ///bool (*line_is_requested)(struct gpiod_line *line);
-//  bool Function(Pointer<gpiod_line> line) line_is_requested;
+  int/*bool*/ Function(Pointer<gpiod_line> line) line_is_requested;
   ///bool (*line_is_free)(struct gpiod_line *line);
-//  bool Function(Pointer<gpiod_line> line) line_is_free;
+  int/*bool*/ Function(Pointer<gpiod_line> line) line_is_free;
   ///int (*line_get_value)(struct gpiod_line *line);
   int Function(Pointer<gpiod_line> line) line_get_value;
   ///int (*line_set_value)(struct gpiod_line *line, int value);
@@ -110,14 +110,14 @@ class GPIOD{
     } catch (e, st){
       print('gpiod: bias is not supported, not found "gpiod_line_bias"');
     }
-//    line_is_used = _dynamicLibrary.lookup<NativeFunction<line_is_used_native_t>>("gpiod_line_is_used").asFunction();
-//    line_is_open_drain = _dynamicLibrary.lookup<NativeFunction<line_is_open_drain_native_t>>("gpiod_line_is_open_drain").asFunction();
-//    line_is_open_source = _dynamicLibrary.lookup<NativeFunction<line_is_open_source_native_t>>("gpiod_line_is_open_source").asFunction();
+    line_is_used = _dynamicLibrary.lookup<NativeFunction<line_is_used_native_t>>("gpiod_line_is_used").asFunction();
+    line_is_open_drain = _dynamicLibrary.lookup<NativeFunction<line_is_open_drain_native_t>>("gpiod_line_is_open_drain").asFunction();
+    line_is_open_source = _dynamicLibrary.lookup<NativeFunction<line_is_open_source_native_t>>("gpiod_line_is_open_source").asFunction();
     line_update = _dynamicLibrary.lookup<NativeFunction<line_update_native_t>>("gpiod_line_update").asFunction();
     line_request = _dynamicLibrary.lookup<NativeFunction<line_request_native_t>>("gpiod_line_request").asFunction();
     line_release = _dynamicLibrary.lookup<NativeFunction<line_release_native_t>>("gpiod_line_release").asFunction();
-//    line_is_requested = _dynamicLibrary.lookup<NativeFunction<line_is_requested_native_t>>("gpiod_line_is_requested").asFunction();
-//    line_is_free = _dynamicLibrary.lookup<NativeFunction<line_is_free_native_t>>("gpiod_line_is_free").asFunction();
+    line_is_requested = _dynamicLibrary.lookup<NativeFunction<line_is_requested_native_t>>("gpiod_line_is_requested").asFunction();
+    line_is_free = _dynamicLibrary.lookup<NativeFunction<line_is_free_native_t>>("gpiod_line_is_free").asFunction();
     line_get_value = _dynamicLibrary.lookup<NativeFunction<line_get_value_native_t>>("gpiod_line_get_value").asFunction();
     line_set_value = _dynamicLibrary.lookup<NativeFunction<line_set_value_native_t>>("gpiod_line_set_value").asFunction();
     try {

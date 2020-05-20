@@ -104,7 +104,12 @@ class gpiod_line_event extends Struct{
 }
 
 class timespec extends Struct{
-
+  @Int32()
+  ///seconds
+  /*time_t*/ int tv_sec;
+  @Int32()
+  ///nanoseconds
+  int    tv_nsec;
 }
 
 class gpiod_line_iter extends Struct{
