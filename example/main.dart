@@ -20,6 +20,9 @@ void main() async {
 
   try {
     var gpiod = GPIOD();
+
+    _log.info('GPIOD version: ${Utf8.fromUtf8(gpiod.version_string())}');
+
     // iterate through the GPIO chips
     var chipiter = gpiod.chip_iter_new();
     if (chipiter.address == 0) {
@@ -31,7 +34,7 @@ void main() async {
     for (var n_chips = 0, n_lines = 0, chip =  gpiod.chip_iter_next_noclose(chipiter);     chip.address != 0;
     n_chips++, chip = gpiod.chip_iter_next_noclose(chipiter))
     {
-      _log.info('${n_chips} ${utf8.decode([chip.ref.name,chip.ref.name1, chip.ref.name2,chip.ref.name3, chip.ref.name4, chip.ref.name5])}');
+      _log.info('${n_chips} ${utf8.decode(chip.ref.name)} ${utf8.decode(chip.ref.label)}');
       _log.info('chip.ref.num_lines ${chip.ref.num_lines}');
     }
     gpiod.chip_iter_free_noclose(chipiter);
