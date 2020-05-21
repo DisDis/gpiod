@@ -145,4 +145,19 @@ class GPIOD{
   {
     bulk.setLine(bulk.num_lines++,line.addressOf);
   }
+
+  // because libgpiod doesn't provide it, but it's useful
+  void line_bulk_remove(gpiod_line_bulk bulk, gpiod_line line) {
+    //TODO: Implement it!
+     throw UnimplementedError();
+//      struct gpiod_line *linetemp, **cursor;
+//      struct gpiod_line_bulk new_bulk = GPIOD_LINE_BULK_INITIALIZER;
+
+//      gpiod_line_bulk_foreach_line(bulk, linetemp, cursor) {
+//          if (linetemp != line)
+//              line_bulk_add(&new_bulk, linetemp);
+//      }
+//
+//      memcpy(bulk, &new_bulk, sizeof(struct gpiod_line_bulk));
+  }
 }

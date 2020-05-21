@@ -21,3 +21,7 @@ class pthread_t extends Struct{
   factory pthread_t.allocate() =>
       allocate<pthread_t>().ref;
 }
+
+class pthread_attr_t extends Struct{
+
+}

@@ -383,6 +383,76 @@ class gpiod_line_bulk extends Struct{
   Pointer<gpiod_line> line62;
   Pointer<gpiod_line> line63;
 
+  Pointer<gpiod_line> getLine(int index){
+    switch (index){
+      case 0: return line0; break;
+      case 1: return line1; break;
+      case 2: return line2; break;
+      case 3: return line3; break;
+      case 4: return line4; break;
+      case 5: return line5; break;
+      case 6: return line6; break;
+      case 7: return line7; break;
+      case 8: return line8; break;
+      case 9: return line9; break;
+      case 10: return line10; break;
+      case 11: return line11; break;
+      case 12: return line12; break;
+      case 13: return line13; break;
+      case 14: return line14; break;
+      case 15: return line15; break;
+      case 16: return line16; break;
+      case 17: return line17; break;
+      case 18: return line18; break;
+      case 19: return line19; break;
+      case 20: return line20; break;
+      case 21: return line21; break;
+      case 22: return line22; break;
+      case 23: return line23; break;
+      case 24: return line24; break;
+      case 25: return line25; break;
+      case 26: return line26; break;
+      case 27: return line27; break;
+      case 28: return line28; break;
+      case 29: return line29; break;
+      case 30: return line30; break;
+      case 31: return line31; break;
+      case 32: return line32; break;
+      case 33: return line33; break;
+      case 34: return line34; break;
+      case 35: return line35; break;
+      case 36: return line36; break;
+      case 37: return line37; break;
+      case 38: return line38; break;
+      case 39: return line39; break;
+      case 40: return line40; break;
+      case 41: return line41; break;
+      case 42: return line42; break;
+      case 43: return line43; break;
+      case 44: return line44; break;
+      case 45: return line45; break;
+      case 46: return line46; break;
+      case 47: return line47; break;
+      case 48: return line48; break;
+      case 49: return line49; break;
+      case 50: return line50; break;
+      case 51: return line51; break;
+      case 52: return line52; break;
+      case 53: return line53; break;
+      case 54: return line54; break;
+      case 55: return line55; break;
+      case 56: return line56; break;
+      case 57: return line57; break;
+      case 58: return line58; break;
+      case 59: return line59; break;
+      case 60: return line60; break;
+      case 61: return line61; break;
+      case 62: return line62; break;
+      case 63: return line63; break;
+      default:
+        throw new Exception('index >= 0 and index < 64');
+    }
+  }
   void setLine(int index, Pointer<gpiod_line> line){
     switch(index){
       case 0: line0 = line; break;
@@ -476,6 +546,8 @@ class gpiod_line_event extends Struct{
   @Int32()
   /**< Type of the event that occurred. */
   int event_type;
+  factory gpiod_line_event.allocate() =>
+      allocate<gpiod_line_event>().ref..tv_sec = 0..tv_nsec=0..event_type=0;
 }
 
 class timespec extends Struct{
