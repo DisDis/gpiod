@@ -1,5 +1,5 @@
-library flutter_gpiod;
+library gpiod;
 
-export 'src/bindings/bindings.dart';
-export 'src/bindings/types.dart';
-export 'src/bindings/constants.dart';
+export 'src/bindings/gpiod/bindings.dart';
+export 'src/bindings/gpiod/types.dart';
+export 'src/bindings/gpiod/constants.dart';

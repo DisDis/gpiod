@@ -307,6 +307,9 @@ class gpiod_line_request_config extends Struct {
 
 class gpiod_line_bulk extends Struct{
 
+  factory gpiod_line_bulk.allocate() =>
+      allocate<gpiod_line_bulk>().ref..num_lines = 0;
+
   //#define GPIOD_LINE_BULK_MAX_LINES	64
   //struct gpiod_line *lines[GPIOD_LINE_BULK_MAX_LINES];
   /**< Buffer for line pointers. */
@@ -379,6 +382,78 @@ class gpiod_line_bulk extends Struct{
   Pointer<gpiod_line> line61;
   Pointer<gpiod_line> line62;
   Pointer<gpiod_line> line63;
+
+  void setLine(int index, Pointer<gpiod_line> line){
+    switch(index){
+      case 0: line0 = line; break;
+      case 1: line1 = line; break;
+      case 2: line2 = line; break;
+      case 3: line3 = line; break;
+      case 4: line4 = line; break;
+      case 5: line5 = line; break;
+      case 6: line6 = line; break;
+      case 7: line7 = line; break;
+      case 8: line8 = line; break;
+      case 9: line9 = line; break;
+      case 10: line10 = line; break;
+      case 11: line11 = line; break;
+      case 12: line12 = line; break;
+      case 13: line13 = line; break;
+      case 14: line14 = line; break;
+      case 15: line15 = line; break;
+      case 16: line16 = line; break;
+      case 17: line17 = line; break;
+      case 18: line18 = line; break;
+      case 19: line19 = line; break;
+      case 20: line20 = line; break;
+      case 21: line21 = line; break;
+      case 22: line22 = line; break;
+      case 23: line23 = line; break;
+      case 24: line24 = line; break;
+      case 25: line25 = line; break;
+      case 26: line26 = line; break;
+      case 27: line27 = line; break;
+      case 28: line28 = line; break;
+      case 29: line29 = line; break;
+      case 30: line30 = line; break;
+      case 31: line31 = line; break;
+      case 32: line32 = line; break;
+      case 33: line33 = line; break;
+      case 34: line34 = line; break;
+      case 35: line35 = line; break;
+      case 36: line36 = line; break;
+      case 37: line37 = line; break;
+      case 38: line38 = line; break;
+      case 39: line39 = line; break;
+      case 40: line40 = line; break;
+      case 41: line41 = line; break;
+      case 42: line42 = line; break;
+      case 43: line43 = line; break;
+      case 44: line44 = line; break;
+      case 45: line45 = line; break;
+      case 46: line46 = line; break;
+      case 47: line47 = line; break;
+      case 48: line48 = line; break;
+      case 49: line49 = line; break;
+      case 50: line50 = line; break;
+      case 51: line51 = line; break;
+      case 52: line52 = line; break;
+      case 53: line53 = line; break;
+      case 54: line54 = line; break;
+      case 55: line55 = line; break;
+      case 56: line56 = line; break;
+      case 57: line57 = line; break;
+      case 58: line58 = line; break;
+      case 59: line59 = line; break;
+      case 60: line60 = line; break;
+      case 61: line61 = line; break;
+      case 62: line62 = line; break;
+      case 63: line63 = line; break;
+      default:
+        throw new Exception('index >= 0 and index < 64');
+    }
+
+  }
 
 
   @Uint32()

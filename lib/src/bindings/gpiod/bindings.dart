@@ -140,4 +140,9 @@ class GPIOD{
     // misc
     version_string = _dynamicLibrary.lookup<NativeFunction<version_string_native_t>>("gpiod_version_string").asFunction();
   }
+
+  void line_bulk_add(gpiod_line_bulk bulk, gpiod_line line)
+  {
+    bulk.setLine(bulk.num_lines++,line.addressOf);
+  }
 }
