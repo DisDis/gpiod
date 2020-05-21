@@ -2,7 +2,7 @@ import 'dart:ffi';
 import 'types.dart';
 
 ///int epoll_ctl(int epfd, int op, int fd, struct epoll_event *event)
-typedef epoll_ctl_native_t = Int32 Function(Int32 epfd, Int32 op, int fd, Pointer<epoll_event> event);
+typedef epoll_ctl_native_t = Int32 Function(Int32 epfd, Int32 op, Int32 fd, Pointer<epoll_event> event);
 ///int epoll_create(int size);
 typedef epoll_create_native_t = Int32 Function(Int32 size);
 ///int epoll_create1(int flags);
