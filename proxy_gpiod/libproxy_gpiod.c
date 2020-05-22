@@ -656,14 +656,14 @@ DART_EXPORT int gpiodp_get_chip_details(unsigned int chip_index, struct proxy_gp
         );*/
     return 0;
 }
-/*
-DART_EXPORT int gpiodp_get_line_handle(int chipIndex, int lineIndex) {
+
+DART_EXPORT int gpiodp_get_line_handle(unsigned int chip_index, unsigned int line_index) {
     struct gpiod_chip *chip;
-    unsigned int chip_index, line_index;
     int ok;
 
     // check arg
-    if (STDVALUE_IS_LIST(object->std_arg)) {
+    //TODO: FIX IT
+   /* if (STDVALUE_IS_LIST(object->std_arg)) {
         if (STDVALUE_IS_INT(object->std_arg.list[0])) {
             chip_index = STDVALUE_AS_INT(object->std_arg.list[0]);
         } else {
@@ -686,12 +686,12 @@ DART_EXPORT int gpiodp_get_line_handle(int chipIndex, int lineIndex) {
             responsehandle,
             "Expected `arg` to be a list with length 2."
         );
-    }
+    }*/
 
     // try to init GPIO
     ok = gpiodp_ensure_gpiod_initialized();
     if (ok != 0) {
-        return gpiodp_respond_init_failed(responsehandle);
+        return gpiodp_respond_init_failed();
     }
 
     // try to get the chip correspondig to the chip index
@@ -699,7 +699,6 @@ DART_EXPORT int gpiodp_get_line_handle(int chipIndex, int lineIndex) {
         chip = gpio_plugin.chips[chip_index];
     } else {
         return platch_respond_illegal_arg_std(
-            responsehandle,
             "Expected `arg[0]` to be a valid chip index."
         );
     }
@@ -707,7 +706,6 @@ DART_EXPORT int gpiodp_get_line_handle(int chipIndex, int lineIndex) {
     // check if the line index is in range
     if (line_index >= libgpiod.chip_num_lines(chip)) {
         return platch_respond_illegal_arg_std(
-            responsehandle,
             "Expected `arg[1]` to be a valid line index."
         );
     }
@@ -716,9 +714,10 @@ DART_EXPORT int gpiodp_get_line_handle(int chipIndex, int lineIndex) {
     for (int i = 0; i < chip_index; i++)
         line_index += libgpiod.chip_num_lines(gpio_plugin.chips[i]);
 
-    return platch_respond_success_std(responsehandle, &STDINT32(line_index));
+    //return platch_respond_success_std(responsehandle, &STDINT32(line_index));
+    return line_index;
 }
-*/
+
 DART_EXPORT int gpiodp_get_line_details(unsigned int line_handle, struct proxy_gpiod_line_details_struct* result) {
     struct gpiod_line *line;
     //unsigned int line_handle;
@@ -829,9 +828,8 @@ DART_EXPORT int gpiodp_get_line_details(unsigned int line_handle, struct proxy_g
     result->activeState = libgpiod.line_active_state(line);
     return 0;
 }
-/*
-static int gpiodp_request_line(struct platch_obj *object,
-                        FlutterPlatformMessageResponseHandle *responsehandle) {
+
+static int gpiodp_request_line() {
     struct line_config config;
     struct std_value *temp;
     bool is_event_line = false;
@@ -961,7 +959,6 @@ static int gpiodp_request_line(struct platch_obj *object,
 
     return platch_respond_success_std(responsehandle, NULL);
 }
-*/
 
 DART_EXPORT int gpiodp_release_line(unsigned int line_handle) {
     struct gpiod_line *line;

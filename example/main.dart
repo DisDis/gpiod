@@ -72,45 +72,59 @@ void main() async {
     final int nativePort = interactiveCppRequests.sendPort.nativePort;
     proxyGPIOD.register_send_port(nativePort);
     final gpio = await FlutterGpiod.getInstance();
-
-//
-//    _log.info('GPIOD version: ${Utf8.fromUtf8(gpiod.version_string())}');
-//
-//    // iterate through the GPIO chips
-//    var chipiter = gpiod.chip_iter_new();
-//    if (chipiter.address == 0) {
-//      _log.severe("[gpiod] could not create GPIO chip iterator. gpiod_chip_iter_new");
-//      return;//errno;
-//    }
-//
-//    Map<String,Pointer<gpiod_chip>> chips = <String,Pointer<gpiod_chip>>{};
-//    _log.info('get chips');
-//    for (var n_chips = 0, n_lines = 0, chip =  gpiod.chip_iter_next_noclose(chipiter);     chip.address != 0;
-//    n_chips++, chip = gpiod.chip_iter_next_noclose(chipiter))
-//    {
-//      _log.info('${n_chips} ${chip.ref.name} ${chip.ref.label}');
-//      _log.info('chip.ref.num_lines ${chip.ref.num_lines}');
-//      chips[chip.ref.label] = chip;
-//    }
-//    gpiod.chip_iter_free_noclose(chipiter);
-//
-//    gpiodp_ensure_gpiod_initialized();
-//
-////    var chip = chips['pinctrl-bcm2835'];
-////    var line14 = chip.ref.lines[14];
-////    line14.ref.
-//    /// Request BCM 14 as output.
-//    gpiodp_request_line(
-//      14,
-//      consumer: 'LED',
-//        initialValue: true,
-//      direction: LineDirection.output,
-//        outputMode :OutputMode.pushPull,
-//        activeState : ActiveState.high
-//    );
+    _status(gpio.chips);
+    _led(gpio.chips);
 
   } catch(e, st){
     _log.severe("Error",e, st);
+  }
+}
+
+
+Future _led(List<GpioChip> chips) async {
+  print('LED');
+  /// Retrieve the line with index 23 of the first chip.
+  /// This is BCM pin 23 for the Raspberry Pi.
+  ///
+  /// I recommend finding the chip you want
+  /// based on the chip label, as is done here.
+  ///
+  /// In this example, we search for the main Raspberry Pi GPIO chip,
+  /// which has the label `pinctrl-bcm2835`, and then retrieve the line
+  /// with index 14 of it. So [line] is GPIO pin BCM 14.
+  final line14 =
+  chips.singleWhere((chip) => chip.label == 'pinctrl-bcm2835').lines[14];
+
+  /// Request BCM 14 as output.
+  await line14.requestOutput(
+      consumer: "flutter_gpiod test", initialValue: true);
+
+  for (var i = 0; i<5 ;i++) {
+    /// Pulse the line.
+    /// Set it to inactive. (so low voltage = GND)
+    await line14.setValue(false);
+    await Future.delayed(Duration(milliseconds: 500));
+    await line14.setValue(true);
+    await Future.delayed(Duration(milliseconds: 500));
+  }
+  await line14.release();
+}
+
+Future _status(List<GpioChip> chips) async {
+  /// Print out all GPIO chips and all lines
+  /// for all GPIO chips.
+  for (var chip in chips) {
+    print("$chip");
+
+    var index = 0;
+    for (var line in chip.lines) {
+      final info = await line.info;
+      if (info.consumer!=null) {
+        print("$index:  ${await line.info}");
+      }
+
+      index++;
+    }
   }
 }
 

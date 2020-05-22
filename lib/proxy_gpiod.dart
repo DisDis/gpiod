@@ -99,14 +99,14 @@ class _FlutterGpiodPlatformSide {
   }
 
   static Future<int> getLineHandle(int chipIndex, int lineIndex) async {
-    //TODO: FIXIT
-    return null;//_proxyGPIOD.get_line_handle(chipIndex, lineIndex);
+    //TODO: Error?
+    return _proxyGPIOD.get_line_handle(chipIndex, lineIndex);
   }
 
   static Future<LineInfo> getLineInfo(int lineHandle) async {
     var lineDetails = LineDetails.allocate();
     //TODO: Error?
-    _proxyGPIOD.get_line_details(lineHandle,lineDetails.addressOf);
+    _proxyGPIOD.get_line_details(lineHandle, lineDetails.addressOf);
     return LineInfo._fromStruct(lineDetails);
   }
 
@@ -408,8 +408,8 @@ class LineInfo {
 
   static LineInfo _fromStruct(LineDetails lineDetails) {
     return LineInfo._(
-        name: Utf8.fromUtf8(lineDetails.name),
-        consumer: Utf8.fromUtf8(lineDetails.consumer),
+        name: lineDetails.name.address == 0? "" : Utf8.fromUtf8(lineDetails.name),
+        consumer: lineDetails.consumer.address == 0? "" : Utf8.fromUtf8(lineDetails.consumer),
         direction: LineDirection.parse(lineDetails.direction),
         outputMode: _convertLineDetailsToOutputmode(lineDetails),
         bias: Bias.parse(lineDetails.bias),

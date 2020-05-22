@@ -25,9 +25,9 @@ class ProxyGPIOD {
       .asFunction();
 
   final int Function(int chipIndex, Pointer<ChipDetails> result) get_chip_details = _dynamicLibrary.lookup<NativeFunction<gpiodp_get_chip_details_native_t>>('gpiodp_get_chip_details').asFunction();
-  final int Function(int chipIndex,int lineIndex) get_line_handle = null;//_dynamicLibrary.lookup<NativeFunction<gpiodp_get_line_handle_native_t>>('gpiodp_get_line_handle_native_t').asFunction();
+  final int Function(int chipIndex,int lineIndex) get_line_handle = _dynamicLibrary.lookup<NativeFunction<gpiodp_get_line_handle_native_t>>('gpiodp_get_line_handle').asFunction();
   final int Function(int lineHandle, Pointer<LineDetails> result) get_line_details = _dynamicLibrary.lookup<NativeFunction<gpiodp_get_line_details_native_t>>('gpiodp_get_line_details').asFunction();
-  final int Function() request_line = null;//_dynamicLibrary.lookup<NativeFunction<gpiodp_request_line_native_t>>('gpiodp_request_line').asFunction();
+  final int Function() request_line = _dynamicLibrary.lookup<NativeFunction<gpiodp_request_line_native_t>>('gpiodp_request_line').asFunction();
   final int Function(int lineHandle) release_line = null;//_dynamicLibrary.lookup<NativeFunction<gpiodp_release_line_native_t>>('gpiodp_release_line').asFunction();
   final int Function() reconfigure_line = null;//_dynamicLibrary.lookup<NativeFunction<gpiodp_reconfigure_line_native_t>>('gpiodp_reconfigure_line').asFunction();
   final int Function() get_line_value = null;//_dynamicLibrary.lookup<NativeFunction<gpiodp_get_line_value_native_t>>('gpiodp_get_line_value').asFunction();

@@ -52,5 +52,5 @@ class Bias {
   static const Bias pullDown = const Bias._internal(4);
 
   static List<Bias> get values => [asIs, disable, pullUp, pullDown];
-  static Bias parse(int value) => values.firstWhere((element) => element.value == value);
+  static Bias parse(int value, [Bias defaultValue]) => values.firstWhere((element) => element.value == value,orElse: ()=>defaultValue);
 }
