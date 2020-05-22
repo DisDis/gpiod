@@ -10,6 +10,9 @@ environment:
 dependencies:
   logging: ^0.11.0
   ffi: ^0.1.3
+  mutex: ^1.0.3
+  meta: ^1.1.8
+  async: ^2.4.0
 
 #dev_dependencies:
 

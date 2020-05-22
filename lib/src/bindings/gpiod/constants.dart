@@ -50,10 +50,15 @@ class LineDirection {
   const LineDirection._internal(this.value);
   //GPIOD_LINE_DIRECTION_INPUT = 1,
   /**< Direction is input - we're reading the state of a GPIO line. */
-  static const LineDirection input = const LineDirection._internal(1);
+  static const LineDirection GPIOD_LINE_DIRECTION_INPUT = const LineDirection._internal(1);
+//  static const LineDirection input = const LineDirection._internal(1);
   //GPIOD_LINE_DIRECTION_OUTPUT,
   /**< Direction is output - we're driving the GPIO line. */
-  static const LineDirection output = const LineDirection._internal(2);
+  static const LineDirection GPIOD_LINE_DIRECTION_OUTPUT = const LineDirection._internal(2);
+//  static const LineDirection output = const LineDirection._internal(2);
+
+  static List<LineDirection> get values => [GPIOD_LINE_DIRECTION_INPUT, GPIOD_LINE_DIRECTION_OUTPUT];
+  static LineDirection parse(int value) => values.firstWhere((element) => element.value == value);
 }
 
 class LineRequestFlag {

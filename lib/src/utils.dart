@@ -214,7 +214,7 @@ bool gpiodp_ensure_gpiod_initialized(){
 
 
 _LineConfig gpiodp_get_config({Bias bias, int line_handle = 0,
-  LineDirection direction = LineDirection.input,
+  LineDirection direction = LineDirection.GPIOD_LINE_DIRECTION_INPUT,
   OutputMode outputMode, bool initialValue,
   ActiveState activeState}
     /*struct std_value *value,
@@ -268,10 +268,10 @@ _LineConfig gpiodp_get_config({Bias bias, int line_handle = 0,
   // get the direction
 //    temp = stdmap_get_str(value, "direction");
 //    if (temp && (temp->type == kStdString)) {
-  if (direction == LineDirection.input) {
+  if (direction == LineDirection.GPIOD_LINE_DIRECTION_INPUT) {
     conf_out.direction = direction;
     conf_out.request_type = LineRequestType.GPIOD_LINE_REQUEST_DIRECTION_INPUT;
-  } else if (direction == LineDirection.output){
+  } else if (direction == LineDirection.GPIOD_LINE_DIRECTION_OUTPUT){
     conf_out.direction = direction;
     conf_out.request_type = LineRequestType.GPIOD_LINE_REQUEST_DIRECTION_OUTPUT;
   }
@@ -293,12 +293,12 @@ _LineConfig gpiodp_get_config({Bias bias, int line_handle = 0,
   // get the output mode
 //    temp = stdmap_get_str(value, "outputMode");
   if (outputMode == null) {
-    if (conf_out.direction == /*GPIOD_LINE_DIRECTION_OUTPUT*/ LineDirection.output) {
+    if (conf_out.direction == /*GPIOD_LINE_DIRECTION_OUTPUT*/ LineDirection.GPIOD_LINE_DIRECTION_OUTPUT) {
       //goto invalid_output_mode;
       throw new Exception('invalid_output_mode');
     }
   } else /*if (temp && temp->type == kStdString)*/ {
-    if (conf_out.direction == LineDirection.input /*GPIOD_LINE_DIRECTION_INPUT*/) {
+    if (conf_out.direction == LineDirection.GPIOD_LINE_DIRECTION_INPUT /*GPIOD_LINE_DIRECTION_INPUT*/) {
 //            goto invalid_output_mode;
       throw new Exception('invalid_output_mode');
     }
@@ -375,16 +375,16 @@ _LineConfig gpiodp_get_config({Bias bias, int line_handle = 0,
   conf_out.initial_value = 0;
 //    temp = stdmap_get_str(value, "initialValue");
   if (initialValue == null/*(!temp) || STDVALUE_IS_NULL(*temp)*/) {
-    if (conf_out.direction == LineDirection.input /*GPIOD_LINE_DIRECTION_INPUT*/) {
+    if (conf_out.direction == LineDirection.GPIOD_LINE_DIRECTION_INPUT /*GPIOD_LINE_DIRECTION_INPUT*/) {
       // do nothing.
-    } else if (conf_out.direction == LineDirection.output /*GPIOD_LINE_DIRECTION_OUTPUT*/) {
+    } else if (conf_out.direction == LineDirection.GPIOD_LINE_DIRECTION_OUTPUT /*GPIOD_LINE_DIRECTION_OUTPUT*/) {
       //goto invalid_initial_value;
       throw new Exception('invalid_initial_value');
     }
   } else /*if (temp && STDVALUE_IS_BOOL(*temp))*/ {
-    if (conf_out.direction == LineDirection.input) {
+    if (conf_out.direction == LineDirection.GPIOD_LINE_DIRECTION_INPUT) {
       throw new Exception('invalid_initial_value');//goto invalid_initial_value;
-    } else if (conf_out.direction == LineDirection.output) {
+    } else if (conf_out.direction == LineDirection.GPIOD_LINE_DIRECTION_OUTPUT) {
       conf_out.initial_value = initialValue ? 1 : 0;
     }
   } /*else {
@@ -485,12 +485,12 @@ int gpiodp_request_line(
   // get the triggers
 //    temp = stdmap_get_str(&object->std_arg, "triggers");
   if (triggers == null/*(!temp) || STDVALUE_IS_NULL(*temp)*/) {
-    if (config.direction == LineDirection.input /*GPIOD_LINE_DIRECTION_INPUT*/) {
+    if (config.direction == LineDirection.GPIOD_LINE_DIRECTION_INPUT /*GPIOD_LINE_DIRECTION_INPUT*/) {
 //            goto invalid_triggers;
       throw new Exception('invalid_triggers');
     }
   } else /*if (temp && STDVALUE_IS_LIST(*temp))*/ {
-    if (config.direction == LineDirection.output/*GPIOD_LINE_DIRECTION_OUTPUT*/) {
+    if (config.direction == LineDirection.GPIOD_LINE_DIRECTION_OUTPUT/*GPIOD_LINE_DIRECTION_OUTPUT*/) {
       throw new Exception('invalid_triggers');
     }
 

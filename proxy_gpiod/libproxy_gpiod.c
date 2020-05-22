@@ -5,14 +5,64 @@
 #include <pthread.h>
 #include <sys/epoll.h>
 
+#include <string.h>
+
+
 #include "libproxy_gpiod.h"
+#include </usr/lib/dart/include/dart_api.h>
+#include "/usr/lib/dart/include/dart_native_api.h"
 //#include <pluginregistry.h>
 //#include <plugins/gpiod_plugin.h>
+
+Dart_Port send_port_;
 
 
 void print_hello() {
     printf("Hello, World!\n");
 }
+
+DART_EXPORT void proxy_gpiod_register_send_port(Dart_Port send_port) {
+  send_port_ = send_port;
+}
+
+
+struct proxy_gpiod_chip_details_struct{
+  char* name;
+  char* label;
+  int numLines;
+};
+
+struct proxy_gpiod_line_details_struct{
+  char* name;
+  char* consumer;
+  bool isUsed;
+  bool isRequested;
+  bool isFree;
+  int direction;
+  //int outputMode;
+  int open_source;
+  int open_drain;
+  int bias;
+  int activeState;
+            /*},
+            .values = (struct std_value[9]) {
+                {.type = name? kStdString : kStdNull, .string_value = name},
+                {.type = consumer? kStdString : kStdNull, .string_value = consumer},
+                {.type = libgpiod.line_is_used(line) ? kStdTrue : kStdFalse},
+                {.type = libgpiod.line_is_requested(line) ? kStdTrue : kStdFalse},
+                {.type = libgpiod.line_is_free(line) ? kStdTrue : kStdFalse},
+                {.type = kStdString, .string_value = direction_str},
+                {
+                    .type = output_mode_str? kStdString : kStdNull,
+                    .string_value = output_mode_str
+                },
+                {
+                    .type = bias_str? kStdString : kStdNull,
+                    .string_value = bias_str
+                },
+                {.type = kStdString, .string_value = active_state_str}*/
+};
+
 
 struct {
     bool initialized;
@@ -222,25 +272,37 @@ static int gpiodp_ensure_gpiod_initialized(void) {
 
 /// Sends a platform message to `handle` saying that the libgpiod binding has failed to initialize.
 /// Should be called when `gpiodp_ensure_gpiod_initialized()` has failed.
-static int gpiodp_respond_init_failed(FlutterPlatformMessageResponseHandle *handle) {
-    return platch_respond_error_std(
-        handle,
+static int gpiodp_respond_init_failed() {
+    //TODO: FIX IT
+    return -1;/*platch_respond_error_std(
         "couldnotinit",
         "flutter_gpiod failed to initialize libgpiod bindings. See flutter-pi log for details.",
         NULL
-    );
+    );*/
 }
 
 /// Sends a platform message to `handle` with error code "illegalargument"
 /// and error messsage "supplied line handle is not valid".
-static int gpiodp_respond_illegal_line_handle(FlutterPlatformMessageResponseHandle *handle) {
-    return platch_respond_illegal_arg_std(handle, "supplied line handle is not valid");
+static int gpiodp_respond_illegal_line_handle() {
+    //TODO: FIX IT
+    return -1;//platch_respond_illegal_arg_std(handle, "supplied line handle is not valid");
 }
 
-static int gpiodp_respond_not_supported(FlutterPlatformMessageResponseHandle *handle, char *msg) {
-    return platch_respond_error_std(handle, "notsupported", msg, NULL);
+static int gpiodp_respond_not_supported(char *msg) {
+    //TODO: FIX IT
+    return -1;//platch_respond_error_std(handle, "notsupported", msg, NULL);
 }
 
+static int platch_respond_native_error_std( int error ){
+  //TODO: FIX IT
+  return -1;
+}
+static int platch_respond_illegal_arg_std( char* errorStr ){
+  //TODO: FIX IT
+  return -1;
+}
+
+/*
 static int gpiodp_get_config(struct std_value *value,
                       struct line_config *conf_out,
                       FlutterPlatformMessageResponseHandle *responsehandle) {
@@ -438,6 +500,7 @@ static int gpiodp_get_config(struct std_value *value,
 
     return 0;
 }
+*/
 
 /// Runs on it's own thread. Waits for events
 /// on any of the lines in `gpio_plugin.listening_lines`
@@ -499,7 +562,8 @@ static void *gpiodp_io_loop(void *userdata) {
                 line_handle += libgpiod.chip_num_lines(chip);
 
             // finally send the event to the event channel.
-            ok = platch_send_success_event_std(
+            //TODO: FIX IT!
+          /*  ok = platch_send_success_event_std(
                 GPIOD_PLUGIN_EVENT_CHANNEL,
                 &(struct std_value) {
                     .type = kStdList,
@@ -520,7 +584,7 @@ static void *gpiodp_io_loop(void *userdata) {
                         }
                     }
                 }
-            );
+            );*/
         }
 
         pthread_mutex_unlock(&gpio_plugin.listening_lines_mutex);
@@ -530,24 +594,21 @@ static void *gpiodp_io_loop(void *userdata) {
 }
 
 
-static int gpiodp_get_num_chips(struct platch_obj *object,
-                         FlutterPlatformMessageResponseHandle *responsehandle) {
+DART_EXPORT int gpiodp_get_num_chips() {
     int ok;
 
     ok = gpiodp_ensure_gpiod_initialized();
     if (ok != 0) {
-        return gpiodp_respond_init_failed(responsehandle);
+        return gpiodp_respond_init_failed();
     }
 
-    return platch_respond_success_std(responsehandle, &STDINT32(gpio_plugin.n_chips));
+    return gpio_plugin.n_chips;//platch_respond_success_std(responsehandle, &STDINT32(gpio_plugin.n_chips));
 }
 
-static int gpiodp_get_chip_details(struct platch_obj *object,
-                            FlutterPlatformMessageResponseHandle *responsehandle) {
+DART_EXPORT int gpiodp_get_chip_details(unsigned int chip_index, struct proxy_gpiod_chip_details_struct* result) {
     struct gpiod_chip *chip;
-    unsigned int chip_index;
     int ok;
-
+/*
     // check the argument
     if (STDVALUE_IS_INT(object->std_arg)) {
         chip_index = STDVALUE_AS_INT(object->std_arg);
@@ -557,45 +618,46 @@ static int gpiodp_get_chip_details(struct platch_obj *object,
             "Expected `arg` to be an integer."
         );
     }
-
+*/
     // init GPIO
     ok = gpiodp_ensure_gpiod_initialized();
     if (ok != 0) {
-        return gpiodp_respond_init_failed(responsehandle);
+        return gpiodp_respond_init_failed();
     }
 
     // get the chip index
     if (chip_index < gpio_plugin.n_chips) {
         chip = gpio_plugin.chips[chip_index];
     } else  {
-        return platch_respond_illegal_arg_std(
-            responsehandle,
-            "Expected `arg` to be valid chip index."
+        return platch_respond_illegal_arg_std("Expected `arg` to be valid chip index."
         );
     }
 
     // return chip details
-    return platch_respond_success_std(
-        responsehandle,
-        &(struct std_value) {
-            .type = kStdMap,
-            .size = 3,
-            .keys = (struct std_value[3]) {
-                {.type = kStdString, .string_value = "name"},
-                {.type = kStdString, .string_value = "label"},
-                {.type = kStdString, .string_value = "numLines"},
-            },
-            .values = (struct std_value[3]) {
-                {.type = kStdString, .string_value = (char*) libgpiod.chip_name(chip)},
-                {.type = kStdString, .string_value = (char*) libgpiod.chip_label(chip)},
-                {.type = kStdInt32,  .int32_value  = libgpiod.chip_num_lines(chip)},
+    result->name = (char*) libgpiod.chip_name(chip);
+    result->label = (char*) libgpiod.chip_label(chip);
+    result->numLines = libgpiod.chip_num_lines(chip);
+     /*platch_respond_success_std(
+            responsehandle,
+            &(struct std_value) {
+                .type = kStdMap,
+                .size = 3,
+                .keys = (struct std_value[3]) {
+                    {.type = kStdString, .string_value = "name"},
+                    {.type = kStdString, .string_value = "label"},
+                    {.type = kStdString, .string_value = "numLines"},
+                },
+                .values = (struct std_value[3]) {
+                    {.type = kStdString, .string_value = (char*) libgpiod.chip_name(chip)},
+                    {.type = kStdString, .string_value = (char*) libgpiod.chip_label(chip)},
+                    {.type = kStdInt32,  .int32_value  = libgpiod.chip_num_lines(chip)},
+                }
             }
-        }
-    );
+        );*/
+    return 0;
 }
-
-static int gpiodp_get_line_handle(struct platch_obj *object,
-                           FlutterPlatformMessageResponseHandle *responsehandle) {
+/*
+DART_EXPORT int gpiodp_get_line_handle(int chipIndex, int lineIndex) {
     struct gpiod_chip *chip;
     unsigned int chip_index, line_index;
     int ok;
@@ -656,38 +718,37 @@ static int gpiodp_get_line_handle(struct platch_obj *object,
 
     return platch_respond_success_std(responsehandle, &STDINT32(line_index));
 }
-
-static int gpiodp_get_line_details(struct platch_obj *object,
-                            FlutterPlatformMessageResponseHandle *responsehandle) {
+*/
+DART_EXPORT int gpiodp_get_line_details(unsigned int line_handle, struct proxy_gpiod_line_details_struct* result) {
     struct gpiod_line *line;
-    unsigned int line_handle;
+    //unsigned int line_handle;
     char *name, *consumer;
     char *direction_str, *bias_str, *output_mode_str, *active_state_str;
-    bool open_source, open_drain;
+    bool open_source = 0;
+    bool open_drain = 0;
     int direction, bias;
     int ok;
 
     // check arg
-    if (STDVALUE_IS_INT(object->std_arg)) {
+    /*if (STDVALUE_IS_INT(object->std_arg)) {
         line_handle = STDVALUE_AS_INT(object->std_arg);
     } else {
         return platch_respond_illegal_arg_std(
-            responsehandle,
             "Expected `arg` to be an integer."
         );
-    }
+    }*/
 
     // init GPIO
     ok = gpiodp_ensure_gpiod_initialized();
     if (ok != 0) {
-        return gpiodp_respond_init_failed(responsehandle);
+        return gpiodp_respond_init_failed();
     }
 
     // try to get the gpiod line corresponding to the line handle
     if (line_handle < gpio_plugin.n_lines) {
         line = gpio_plugin.lines[line_handle];
     } else {
-        return gpiodp_respond_illegal_line_handle(responsehandle);
+        return gpiodp_respond_illegal_line_handle();
     }
 
     // if we don't own the line, update it
@@ -696,44 +757,32 @@ static int gpiodp_get_line_details(struct platch_obj *object,
     }
 
     direction = libgpiod.line_direction(line);
-    direction_str = direction == GPIOD_LINE_DIRECTION_INPUT ?
-                            "LineDirection.input" : "LineDirection.output";
+    /*direction_str = direction == GPIOD_LINE_DIRECTION_INPUT ?
+                            "LineDirection.input" : "LineDirection.output";*/
 
-    active_state_str = libgpiod.line_active_state(line) == GPIOD_LINE_ACTIVE_STATE_HIGH ?
-                        "ActiveState.high" : "ActiveState.low";
+  /*  active_state_str = libgpiod.line_active_state(line) == GPIOD_LINE_ACTIVE_STATE_HIGH ?
+                        "ActiveState.high" : "ActiveState.low";*/
 
     bias_str = NULL;
     if (libgpiod.line_bias) {
         bias = libgpiod.line_bias(line);
-        if (bias == GPIOD_LINE_BIAS_DISABLE) {
+        /*if (bias == GPIOD_LINE_BIAS_DISABLE) {
             bias_str = "Bias.disable";
         } else if (bias == GPIOD_LINE_BIAS_PULL_UP) {
             bias_str = "Bias.pullUp";
         } else {
             bias_str = "Bias.pullDown";
-        }
+        }*/
     }
 
     output_mode_str = NULL;
     if (direction == GPIOD_LINE_DIRECTION_OUTPUT) {
         open_source = libgpiod.line_is_open_source(line);
         open_drain = libgpiod.line_is_open_drain(line);
-
-        if (open_source) {
-            output_mode_str = "OutputMode.openSource";
-        } else if (open_drain) {
-            output_mode_str = "OutputMode.openDrain";
-        } else  {
-            output_mode_str = "OutputMode.pushPull";
-        }
     }
 
-
-    name = (char*) libgpiod.line_name(line);
-    consumer = (char*) libgpiod.line_consumer(line);
-
     // return line details
-    return platch_respond_success_std(
+    /*return platch_respond_success_std(
         responsehandle,
         &(struct std_value) {
             .type = kStdMap,
@@ -767,9 +816,20 @@ static int gpiodp_get_line_details(struct platch_obj *object,
                 {.type = kStdString, .string_value = active_state_str}
             }
         }
-    );
+    );*/
+    result->name = (char*) libgpiod.line_name(line);
+    result->consumer = (char*) libgpiod.line_consumer(line);
+    result->isUsed = libgpiod.line_is_used(line);
+    result->isRequested = libgpiod.line_is_requested(line);
+    result->isFree = libgpiod.line_is_free(line);
+    result->direction = direction;
+    result->open_source = open_source;
+    result->open_drain = open_drain;
+    result->bias = bias;
+    result->activeState = libgpiod.line_active_state(line);
+    return 0;
 }
-
+/*
 static int gpiodp_request_line(struct platch_obj *object,
                         FlutterPlatformMessageResponseHandle *responsehandle) {
     struct line_config config;
@@ -781,7 +841,6 @@ static int gpiodp_request_line(struct platch_obj *object,
     // check that the arg is a map
     if (object->std_arg.type != kStdMap) {
         return platch_respond_illegal_arg_std(
-            responsehandle,
             "Expected `arg` to be a `Map<String, dynamic>`"
         );
     }
@@ -799,7 +858,6 @@ static int gpiodp_request_line(struct platch_obj *object,
         consumer = temp->string_value;
     } else {
         return platch_respond_illegal_arg_std(
-            responsehandle,
             "Expected `arg['consumer']` to be a string or null."
         );
     }
@@ -861,7 +919,6 @@ static int gpiodp_request_line(struct platch_obj *object,
     } else {
         invalid_triggers:
         return platch_respond_illegal_arg_std(
-            responsehandle,
             "Expected `arg['triggers']` to be a `List<String>` of "
             "string-ifications of [SignalEdge] when direction is input "
             "(no null values in the list), null when direction is output."
@@ -904,28 +961,28 @@ static int gpiodp_request_line(struct platch_obj *object,
 
     return platch_respond_success_std(responsehandle, NULL);
 }
+*/
 
-static int gpiodp_release_line(struct platch_obj *object,
-                        FlutterPlatformMessageResponseHandle *responsehandle) {
+DART_EXPORT int gpiodp_release_line(unsigned int line_handle) {
     struct gpiod_line *line;
-    unsigned int line_handle;
+    //unsigned int line_handle;
     int ok, fd;
 
     // get the line handle
-    if (STDVALUE_IS_INT(object->std_arg)) {
+    /*if (STDVALUE_IS_INT(object->std_arg)) {
         line_handle = STDVALUE_AS_INT(object->std_arg);
     } else {
         return platch_respond_illegal_arg_std(
             responsehandle,
             "Expected `arg` to be an integer."
         );
-    }
+    }*/
 
     // get the corresponding gpiod line
     if (line_handle < gpio_plugin.n_lines) {
         line = gpio_plugin.lines[line_handle];
     } else {
-        return gpiodp_respond_illegal_line_handle(responsehandle);
+        return gpiodp_respond_illegal_line_handle();
     }
 
     // Try to get the line associated fd and remove
@@ -939,7 +996,7 @@ static int gpiodp_release_line(struct platch_obj *object,
         ok = epoll_ctl(gpio_plugin.epollfd, EPOLL_CTL_DEL, fd, NULL);
         if (ok == -1) {
             perror("[flutter_gpiod] Could not remove GPIO line from epollfd. epoll_ctl");
-            return platch_respond_native_error_std(responsehandle, errno);
+            return platch_respond_native_error_std(errno);
         }
 
         pthread_mutex_unlock(&gpio_plugin.listening_lines_mutex);
@@ -948,12 +1005,12 @@ static int gpiodp_release_line(struct platch_obj *object,
     ok = libgpiod.line_release(line);
     if (ok == -1) {
         perror("[flutter_gpiod] Could not release line. gpiod_line_release");
-        return platch_respond_native_error_std(responsehandle, errno);
+        return platch_respond_native_error_std(errno);
     }
 
-    return platch_respond_success_std(responsehandle, NULL);
+    return 0;//platch_respond_success_std(NULL);
 }
-
+/*
 static int gpiodp_reconfigure_line(struct platch_obj *object,
                             FlutterPlatformMessageResponseHandle *responsehandle) {
     struct line_config config;
@@ -1069,33 +1126,33 @@ static int gpiodp_set_line_value(struct platch_obj *object,
 
     return platch_respond_success_std(responsehandle, NULL);
 }
-
-static int gpiodp_supports_bias(struct platch_obj *object,
-                         FlutterPlatformMessageResponseHandle *responsehandle) {
+*/
+DART_EXPORT int gpiodp_supports_bias() {
     int ok;
 
     // ensure GPIO is initialized
     ok = gpiodp_ensure_gpiod_initialized();
     if (ok != 0) {
-        return gpiodp_respond_init_failed(responsehandle);
+    //TODO: FIX IT
+        //return gpiodp_respond_init_failed(responsehandle);
     }
 
-    return platch_respond_success_std(responsehandle, &STDBOOL(libgpiod.line_bias));
+    return libgpiod.line_bias;// platch_respond_success_std(responsehandle, &STDBOOL(libgpiod.line_bias));
 }
 
-static int gpiodp_supports_reconfiguration(struct platch_obj *object,
-                                    FlutterPlatformMessageResponseHandle *responsehandle) {
+DART_EXPORT int gpiodp_supports_reconfiguration() {
     int ok;
 
     // ensure GPIO is initialized
     ok = gpiodp_ensure_gpiod_initialized();
     if (ok != 0) {
-        return gpiodp_respond_init_failed(responsehandle);
+    //TODO: FIX IT
+        //return gpiodp_respond_init_failed(responsehandle);
     }
 
-    return platch_respond_success_std(responsehandle, &STDBOOL(libgpiod.line_set_config));
+    return libgpiod.line_set_config;//platch_respond_success_std(responsehandle, &STDBOOL(libgpiod.line_set_config));
 }
-
+/*
 /// Handles incoming platform messages. Calls the above methods.
 int gpiodp_on_receive(char *channel, struct platch_obj *object, FlutterPlatformMessageResponseHandle *responsehandle) {
     unsigned int chip_index, line_index;
@@ -1164,4 +1221,4 @@ int gpiodp_init(void) {
 int gpiodp_deinit(void) {
     printf("[flutter_gpiod] deinit.\n");
     return 0;
-}
+}*/
