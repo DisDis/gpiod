@@ -133,7 +133,7 @@ class _FlutterGpiodPlatformSide {
 
   static Future<void> releaseLine(int lineHandle) async {
     //TODO: FIXIT
-//    _proxyGPIOD.release_line(lineHandle);
+    _proxyGPIOD.release_line(lineHandle);
   }
 
   static Future<void> reconfigureLine(
@@ -144,15 +144,14 @@ class _FlutterGpiodPlatformSide {
         ActiveState activeState,
         bool initialValue}) async {
     //TODO: FIXIT
-//    _proxyGPIOD.reconfigure_line();
-//    await _methodChannel.invokeMethod("reconfigureLine", {
-//      'lineHandle': lineHandle,
-//      'direction': direction.toString(),
-//      'outputMode': outputMode?.toString(),
-//      'bias': bias?.toString(),
-//      'activeState': activeState.toString(),
-//      'initialValue': initialValue
-//    });
+    var lineConfig = LineConfig.allocate();
+    lineConfig.lineHandle = lineHandle;
+    lineConfig.direction = direction.value;
+    lineConfig.outputMode = outputMode?.value;
+    lineConfig.bias = bias==null?0: bias.value;
+    lineConfig.activeState = activeState==null?0:activeState.value;
+    lineConfig.initialValue = initialValue? 1 : 0;
+    _proxyGPIOD.reconfigure_line(lineConfig.addressOf);
   }
 
   static Future<bool> getLineValue(int lineHandle) async {

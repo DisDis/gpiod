@@ -718,8 +718,8 @@ DART_EXPORT int gpiodp_get_line_handle(unsigned int chip_index, unsigned int lin
 DART_EXPORT int gpiodp_get_line_details(unsigned int line_handle, struct proxy_gpiod_line_details_struct* result) {
     struct gpiod_line *line;
     //unsigned int line_handle;
-    char *name, *consumer;
-    char *direction_str, *bias_str, *output_mode_str, *active_state_str;
+    //char *name, *consumer;
+    //char *direction_str, *bias_str, *output_mode_str, *active_state_str;
     bool open_source = 0;
     bool open_drain = 0;
     int direction, bias;
@@ -759,7 +759,7 @@ DART_EXPORT int gpiodp_get_line_details(unsigned int line_handle, struct proxy_g
   /*  active_state_str = libgpiod.line_active_state(line) == GPIOD_LINE_ACTIVE_STATE_HIGH ?
                         "ActiveState.high" : "ActiveState.low";*/
 
-    bias_str = NULL;
+    //bias_str = NULL;
     if (libgpiod.line_bias) {
         bias = libgpiod.line_bias(line);
         /*if (bias == GPIOD_LINE_BIAS_DISABLE) {
@@ -771,7 +771,7 @@ DART_EXPORT int gpiodp_get_line_details(unsigned int line_handle, struct proxy_g
         }*/
     }
 
-    output_mode_str = NULL;
+    //output_mode_str = NULL;
     if (direction == GPIOD_LINE_DIRECTION_OUTPUT) {
         open_source = libgpiod.line_is_open_source(line);
         open_drain = libgpiod.line_is_open_drain(line);
@@ -1005,24 +1005,22 @@ DART_EXPORT int gpiodp_release_line(unsigned int line_handle) {
 
     return 0;//platch_respond_success_std(NULL);
 }
-/*
-static int gpiodp_reconfigure_line(struct platch_obj *object,
-                            FlutterPlatformMessageResponseHandle *responsehandle) {
+
+DART_EXPORT int gpiodp_reconfigure_line(struct proxy_gpiod_line_config_struct *value) {
     struct line_config config;
     int ok;
 
     // ensure GPIO is initialized
     ok = gpiodp_ensure_gpiod_initialized();
     if (ok != 0) {
-        return gpiodp_respond_init_failed(responsehandle);
+        return gpiodp_respond_init_failed();
     }
 
-    ok = gpiodp_get_config(&object->std_arg, &config, responsehandle);
+    ok = gpiodp_get_config(value, &config);
     if (ok != 0) return ok;
 
     if (!libgpiod.line_set_config) {
         return gpiodp_respond_not_supported(
-            responsehandle,
             "Line reconfiguration is not supported on this platform."
         );
     }
@@ -1035,44 +1033,42 @@ static int gpiodp_reconfigure_line(struct platch_obj *object,
         config.initial_value
     );
     if (ok == -1) {
-        return platch_respond_native_error_std(responsehandle, errno);
+        return platch_respond_native_error_std(errno);
     }
 
-    return platch_respond_success_std(responsehandle, NULL);
+    return 0;//platch_respond_success_std(NULL);
 }
 
-static int gpiodp_get_line_value(struct platch_obj *object,
-                          FlutterPlatformMessageResponseHandle *responsehandle) {
+DART_EXPORT int gpiodp_get_line_value(unsigned int line_handle) {
     struct gpiod_line *line;
-    unsigned int line_handle;
+    //unsigned int line_handle;
     int ok;
 
     // get the line handle
-    if (STDVALUE_IS_INT(object->std_arg)) {
+    /*if (STDVALUE_IS_INT(object->std_arg)) {
         line_handle = STDVALUE_AS_INT(object->std_arg);
     } else {
         return platch_respond_illegal_arg_std(
-            responsehandle,
             "Expected `arg` to be an integer."
         );
-    }
+    }*/
 
     // get the corresponding gpiod line
     if (line_handle < gpio_plugin.n_lines) {
         line = gpio_plugin.lines[line_handle];
     } else {
-        return gpiodp_respond_illegal_line_handle(responsehandle);
+        return gpiodp_respond_illegal_line_handle();
     }
 
     // get the line value
     ok = libgpiod.line_get_value(line);
     if (ok == -1) {
-        return platch_respond_native_error_std(responsehandle, errno);
+        return platch_respond_native_error_std(errno);
     }
 
-    return platch_respond_success_std(responsehandle, &STDBOOL(ok));
+    return ok;//platch_respond_success_std(&STDBOOL(ok));
 }
-*/
+
 DART_EXPORT int gpiodp_set_line_value(unsigned int line_handle, bool value) {
     //struct std_value *temp;
     struct gpiod_line *line;
