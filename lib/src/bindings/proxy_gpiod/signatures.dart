@@ -13,7 +13,7 @@ typedef gpiodp_request_line_native_t = Int32 Function(Pointer<LineConfig> lineCo
 typedef gpiodp_release_line_native_t = Int32 Function(Uint32 lineHandle);
 typedef gpiodp_reconfigure_line_native_t = Int32 Function();
 typedef gpiodp_get_line_value_native_t = Int32 Function();
-typedef gpiodp_set_line_value_native_t = Int32 Function();
+typedef gpiodp_set_line_value_native_t = Int32 Function(Uint32 line_handle, Uint8 value);
 typedef gpiodp_supports_bias_native_t = Int32 Function();
 typedef gpiodp_supports_reconfiguration_native_t = Int32 Function();
 

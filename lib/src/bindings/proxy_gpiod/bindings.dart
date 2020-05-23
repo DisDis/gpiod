@@ -31,7 +31,7 @@ class ProxyGPIOD {
   final int Function(int lineHandle) release_line = null;//_dynamicLibrary.lookup<NativeFunction<gpiodp_release_line_native_t>>('gpiodp_release_line').asFunction();
   final int Function() reconfigure_line = null;//_dynamicLibrary.lookup<NativeFunction<gpiodp_reconfigure_line_native_t>>('gpiodp_reconfigure_line').asFunction();
   final int Function() get_line_value = null;//_dynamicLibrary.lookup<NativeFunction<gpiodp_get_line_value_native_t>>('gpiodp_get_line_value').asFunction();
-  final int Function() set_line_value = null;//_dynamicLibrary.lookup<NativeFunction<gpiodp_get_num_chips_native_t>>('gpiodp_set_line_value').asFunction();
+  final int Function(int line_handle, int value) set_line_value = _dynamicLibrary.lookup<NativeFunction<gpiodp_set_line_value_native_t>>('gpiodp_set_line_value').asFunction();
   final int Function() supports_bias = _dynamicLibrary.lookup<NativeFunction<gpiodp_get_num_chips_native_t>>('gpiodp_supports_bias')
       .asFunction();
   final int Function() supports_reconfiguration = _dynamicLibrary.lookup<NativeFunction<gpiodp_get_num_chips_native_t>>('gpiodp_supports_reconfiguration')

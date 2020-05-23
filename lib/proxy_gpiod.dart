@@ -161,7 +161,7 @@ class _FlutterGpiodPlatformSide {
   }
 
   static Future<void> setLineValue(int lineHandle, bool value) async {
-//    _proxyGPIOD.set_line_value(lineHandle, value);
+    _proxyGPIOD.set_line_value(lineHandle, value?1:0);
   }
 
   static Future<bool> supportsBias() async {

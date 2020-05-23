@@ -1072,16 +1072,14 @@ static int gpiodp_get_line_value(struct platch_obj *object,
 
     return platch_respond_success_std(responsehandle, &STDBOOL(ok));
 }
-
-static int gpiodp_set_line_value(struct platch_obj *object,
-                          FlutterPlatformMessageResponseHandle *responsehandle) {
-    struct std_value *temp;
+*/
+DART_EXPORT int gpiodp_set_line_value(unsigned int line_handle, bool value) {
+    //struct std_value *temp;
     struct gpiod_line *line;
-    unsigned int line_handle;
-    bool value;
+    //bool value;
     int ok;
 
-    if (STDVALUE_IS_SIZED_LIST(object->std_arg, 2)) {
+    /*if (STDVALUE_IS_SIZED_LIST(object->std_arg, 2)) {
         if (STDVALUE_IS_INT(object->std_arg.list[0])) {
             line_handle = STDVALUE_AS_INT(object->std_arg.list[0]);
         } else {
@@ -1104,24 +1102,24 @@ static int gpiodp_set_line_value(struct platch_obj *object,
             responsehandle,
             "Expected `arg` to be a list."
         );
-    }
+    }*/
 
     // get the corresponding gpiod line
     if (line_handle < gpio_plugin.n_lines) {
         line = gpio_plugin.lines[line_handle];
     } else {
-        return gpiodp_respond_illegal_line_handle(responsehandle);
+        return gpiodp_respond_illegal_line_handle();
     }
 
     // get the line value
     ok = libgpiod.line_set_value(line, value ? 1 : 0);
     if (ok == -1) {
-        return platch_respond_native_error_std(responsehandle, errno);
+        return platch_respond_native_error_std(errno);
     }
 
-    return platch_respond_success_std(responsehandle, NULL);
+    return 0;// platch_respond_success_std(responsehandle, NULL);
 }
-*/
+
 DART_EXPORT int gpiodp_supports_bias() {
     int ok;
 
