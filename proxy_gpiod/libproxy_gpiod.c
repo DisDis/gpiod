@@ -955,7 +955,7 @@ DART_EXPORT int gpiodp_request_line(struct proxy_gpiod_line_config_struct *value
         pthread_mutex_unlock(&gpio_plugin.listening_lines_mutex);
     }
 
-    return platch_respond_success_std(NULL);
+    return 0;//platch_respond_success_std(NULL);
 }
 
 DART_EXPORT int gpiodp_release_line(unsigned int line_handle) {

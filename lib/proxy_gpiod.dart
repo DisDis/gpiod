@@ -114,14 +114,18 @@ class _FlutterGpiodPlatformSide {
         bool initialValue}) async {
     //TODO: Error?
     int triggersValue = 0;
-    triggers.forEach((element) { triggersValue|=element.value;});
+    if (triggers != null) {
+      triggers.forEach((element) {
+        triggersValue |= element.value;
+      });
+    }
     var lineConfig = LineConfig.allocate();
     lineConfig.lineHandle = lineHandle;
     lineConfig.consumer = Utf8.toUtf8(consumer);
     lineConfig.direction = direction.value;
     lineConfig.outputMode = outputMode?.value;
-    lineConfig.bias = bias?.value;
-    lineConfig.activeState = activeState.value;
+    lineConfig.bias = bias==null?0: bias.value;
+    lineConfig.activeState = activeState==null?0:activeState.value;
     lineConfig.triggers = triggersValue;
     lineConfig.initialValue = initialValue? 1 : 0;
     _proxyGPIOD.request_line(lineConfig.addressOf);
@@ -157,8 +161,7 @@ class _FlutterGpiodPlatformSide {
   }
 
   static Future<void> setLineValue(int lineHandle, bool value) async {
-    //TODO: FIXIT
-    //_proxyGPIOD.set_line_value(lineHandle, value);
+//    _proxyGPIOD.set_line_value(lineHandle, value);
   }
 
   static Future<bool> supportsBias() async {
