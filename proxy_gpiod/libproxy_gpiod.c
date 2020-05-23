@@ -25,11 +25,21 @@ DART_EXPORT void proxy_gpiod_register_send_port(Dart_Port send_port) {
   send_port_ = send_port;
 }
 
-
 struct proxy_gpiod_chip_details_struct{
   char* name;
   char* label;
   int numLines;
+};
+
+struct proxy_gpiod_line_config_struct{
+  unsigned int lineHandle;
+  char*  consumer;
+  unsigned int direction;
+  unsigned int outputMode;
+  unsigned int bias;
+  unsigned int activeState;
+  unsigned int triggers;
+  unsigned int initialValue;
 };
 
 struct proxy_gpiod_line_details_struct{
@@ -38,12 +48,12 @@ struct proxy_gpiod_line_details_struct{
   bool isUsed;
   bool isRequested;
   bool isFree;
-  int direction;
+  unsigned int direction;
   //int outputMode;
-  int open_source;
-  int open_drain;
-  int bias;
-  int activeState;
+  unsigned int open_source;
+  unsigned int open_drain;
+  unsigned int bias;
+  unsigned int activeState;
             /*},
             .values = (struct std_value[9]) {
                 {.type = name? kStdString : kStdNull, .string_value = name},
@@ -302,12 +312,10 @@ static int platch_respond_illegal_arg_std( char* errorStr ){
   return -1;
 }
 
-/*
-static int gpiodp_get_config(struct std_value *value,
-                      struct line_config *conf_out,
-                      FlutterPlatformMessageResponseHandle *responsehandle) {
-    struct std_value *temp;
-    unsigned int line_handle;
+
+static int gpiodp_get_config(struct proxy_gpiod_line_config_struct *value,
+                      struct line_config *conf_out) {
+    //struct std_value *temp;
     bool has_bias;
     int ok;
 
@@ -315,7 +323,7 @@ static int gpiodp_get_config(struct std_value *value,
     conf_out->request_type = 0;
     conf_out->flags = 0;
 
-    if ((!value) || (value->type != kStdMap)) {
+    /*if ((!value) || (value->type != kStdMap)) {
         ok = platch_respond_illegal_arg_std(
             responsehandle,
             "Expected `arg` to be a `Map<String, dynamic>`"
@@ -323,10 +331,10 @@ static int gpiodp_get_config(struct std_value *value,
         if (ok != 0) return ok;
 
         return EINVAL;
-    }
+    }*/
 
     // get the line handle from the argument map
-    temp = stdmap_get_str(value, "lineHandle");
+    /*temp = stdmap_get_str(value, "lineHandle");
     if (temp && STDVALUE_IS_INT(*temp)) {
         line_handle = STDVALUE_AS_INT(*temp);
     } else {
@@ -337,25 +345,25 @@ static int gpiodp_get_config(struct std_value *value,
         if (ok != 0) return ok;
 
         return EINVAL;
-    }
+    }*/
 
     // get the corresponding gpiod line
-    if (line_handle < gpio_plugin.n_lines) {
-        conf_out->line = gpio_plugin.lines[line_handle];
+    if (value->lineHandle < gpio_plugin.n_lines) {
+        conf_out->line = gpio_plugin.lines[value->lineHandle];
     } else {
-        ok = gpiodp_respond_illegal_line_handle(responsehandle);
+        ok = gpiodp_respond_illegal_line_handle();
         if (ok != 0) return ok;
 
         return EINVAL;
     }
 
     // get the direction
-    temp = stdmap_get_str(value, "direction");
-    if (temp && (temp->type == kStdString)) {
-        if STREQ("LineDirection.input", temp->string_value) {
+    //temp = stdmap_get_str(value, "direction");
+    if (value->direction) {
+        if (value->direction == GPIOD_LINE_DIRECTION_INPUT) {
             conf_out->direction = GPIOD_LINE_DIRECTION_INPUT;
             conf_out->request_type = GPIOD_LINE_REQUEST_DIRECTION_INPUT;
-        } else if STREQ("LineDirection.output", temp->string_value) {
+        } else if (value->direction == GPIOD_LINE_DIRECTION_OUTPUT) {
             conf_out->direction = GPIOD_LINE_DIRECTION_OUTPUT;
             conf_out->request_type = GPIOD_LINE_REQUEST_DIRECTION_OUTPUT;
         } else {
@@ -365,7 +373,6 @@ static int gpiodp_get_config(struct std_value *value,
         invalid_direction:
 
         ok = platch_respond_illegal_arg_std(
-            responsehandle,
             "Expected `arg['direction']` to be a string-ification of `LineDirection`."
         );
         if (ok != 0) return ok;
@@ -374,72 +381,63 @@ static int gpiodp_get_config(struct std_value *value,
     }
 
     // get the output mode
-    temp = stdmap_get_str(value, "outputMode");
-    if ((!temp) || STDVALUE_IS_NULL(*temp)) {
+    //temp = stdmap_get_str(value, "outputMode");
+    if (!(value->outputMode) /*(!temp) || STDVALUE_IS_NULL(*temp)*/) {
         if (conf_out->direction == GPIOD_LINE_DIRECTION_OUTPUT) {
             goto invalid_output_mode;
         }
-    } else if (temp && temp->type == kStdString) {
+    } else {
         if (conf_out->direction == GPIOD_LINE_DIRECTION_INPUT) {
             goto invalid_output_mode;
         }
-
-        if STREQ("OutputMode.pushPull", temp->string_value) {
+        if (value->outputMode == GPIOD_LINE_OUPUT_MODE_PUSHPULL) {
             // do nothing
-        } else if STREQ("OutputMode.openDrain", temp->string_value) {
+        } else if (value->outputMode == GPIOD_LINE_OUPUT_MODE_OPENDRAIN) {
             conf_out->flags |= GPIOD_LINE_REQUEST_FLAG_OPEN_DRAIN;
-        } else if STREQ("OutputMode.openSource", temp->string_value) {
+        } else if (value->outputMode == GPIOD_LINE_OUPUT_MODE_OPENSOURCE)  {
             conf_out->flags |= GPIOD_LINE_REQUEST_FLAG_OPEN_SOURCE;
         } else {
-            goto invalid_output_mode;
+            invalid_output_mode:
+
+            ok = platch_respond_illegal_arg_std(
+                "Expected `arg['outputMode']` to be a string-ification "
+                "of [OutputMode] when direction is output, "
+                "null when direction is input."
+            );
+            if (ok != 0) return ok;
+            return EINVAL;
         }
-    } else {
-        invalid_output_mode:
-
-        ok = platch_respond_illegal_arg_std(
-            responsehandle,
-            "Expected `arg['outputMode']` to be a string-ification "
-            "of [OutputMode] when direction is output, "
-            "null when direction is input."
-        );
-        if (ok != 0) return ok;
-
-        return EINVAL;
     }
 
     // get the bias
     has_bias = false;
-    temp = stdmap_get_str(value, "bias");
-    if ((!temp) || STDVALUE_IS_NULL(*temp)) {
+   // temp = stdmap_get_str(value, "bias");
+    if (!(value->bias)) {
         // don't need to set any flags
-    } else if (temp && temp->type == kStdString) {
-        if STREQ("Bias.disable", temp->string_value) {
+    } else {
+        if (value->bias == GPIOD_LINE_REQUEST_FLAG_BIAS_DISABLE) {
             conf_out->flags |= GPIOD_LINE_REQUEST_FLAG_BIAS_DISABLE;
             has_bias = true;
-        } else if STREQ("Bias.pullUp", temp->string_value) {
+        } else if (value->bias == GPIOD_LINE_REQUEST_FLAG_BIAS_PULL_UP ) {
             conf_out->flags |= GPIOD_LINE_REQUEST_FLAG_BIAS_PULL_UP;
             has_bias = true;
-        } else if STREQ("Bias.pullDown", temp->string_value) {
+        } else if (value->bias == GPIOD_LINE_REQUEST_FLAG_BIAS_PULL_DOWN ) {
             conf_out->flags |= GPIOD_LINE_REQUEST_FLAG_BIAS_PULL_DOWN;
             has_bias = true;
         } else {
-            goto invalid_bias;
+            //invalid_bias:
+
+            ok = platch_respond_illegal_arg_std(
+                "Expected `arg['bias']` to be a stringification of [Bias] or null."
+            );
+            if (ok != 0) return ok;
+
+            return EINVAL;
         }
-    } else {
-        invalid_bias:
-
-        ok = platch_respond_illegal_arg_std(
-            responsehandle,
-            "Expected `arg['bias']` to be a stringification of [Bias] or null."
-        );
-        if (ok != 0) return ok;
-
-        return EINVAL;
     }
 
     if (has_bias && !libgpiod.line_bias) {
         ok = gpiodp_respond_not_supported(
-            responsehandle,
             "Setting line bias is not supported on this platform. "
             "Expected `arg['bias']` to be null."
         );
@@ -450,57 +448,56 @@ static int gpiodp_get_config(struct std_value *value,
 
     // get the initial value
     conf_out->initial_value = 0;
-    temp = stdmap_get_str(value, "initialValue");
-    if ((!temp) || STDVALUE_IS_NULL(*temp)) {
+    //temp = stdmap_get_str(value, "initialValue");
+    /*if ((!temp) || STDVALUE_IS_NULL(*temp)) {
         if (conf_out->direction == GPIOD_LINE_DIRECTION_INPUT) {
             // do nothing.
         } else if (conf_out->direction == GPIOD_LINE_DIRECTION_OUTPUT) {
             goto invalid_initial_value;
         }
-    } else if (temp && STDVALUE_IS_BOOL(*temp)) {
-        if (conf_out->direction == GPIOD_LINE_DIRECTION_INPUT) {
-            goto invalid_initial_value;
+    } else if ( temp && STDVALUE_IS_BOOL(*temp)) {*/
+        if (value->initialValue && conf_out->direction == GPIOD_LINE_DIRECTION_INPUT) {
+            //goto invalid_initial_value;
+            ok = platch_respond_illegal_arg_std(
+                "Expected `arg['initialValue']` to be null if direction is input, "
+                "a bool if direction is output."
+            );
+            if (ok != 0) return ok;
+
+            return EINVAL;
         } else if (conf_out->direction == GPIOD_LINE_DIRECTION_OUTPUT) {
-            conf_out->initial_value = STDVALUE_AS_BOOL(*temp) ? 1 : 0;
+            conf_out->initial_value = conf_out->initial_value;// STDVALUE_AS_BOOL(*temp) ? 1 : 0;
         }
-    } else {
+    /*} else {
         invalid_initial_value:
 
         ok = platch_respond_illegal_arg_std(
-            responsehandle,
             "Expected `arg['initialValue']` to be null if direction is input, "
             "a bool if direction is output."
         );
         if (ok != 0) return ok;
 
         return EINVAL;
-    }
+    }*/
 
     // get the active state
-    temp = stdmap_get_str(value, "activeState");
-    if (temp && (temp->type == kStdString)) {
-        if STREQ("ActiveState.low", temp->string_value) {
+    //temp = stdmap_get_str(value, "activeState");
+    //if (temp && (temp->type == kStdString)) {
+        if (value->activeState == GPIOD_LINE_ACTIVE_STATE_LOW) {
             conf_out->flags |= GPIOD_LINE_REQUEST_FLAG_ACTIVE_LOW;
-        } else if STREQ("ActiveState.high", temp->string_value) {
+        } else if (value->activeState == GPIOD_LINE_ACTIVE_STATE_HIGH) /*STREQ("ActiveState.high", temp->string_value)*/ {
             // do nothing
         } else {
-            goto invalid_active_state;
+            ok = platch_respond_illegal_arg_std(
+                "Expected `arg['activeState']` to be a stringification of [ActiveState]."
+            );
+            if (ok != 0) return ok;
+
+            return EINVAL;
         }
-    } else {
-        invalid_active_state:
-
-        ok = platch_respond_illegal_arg_std(
-            responsehandle,
-            "Expected `arg['activeState']` to be a stringification of [ActiveState]."
-        );
-        if (ok != 0) return ok;
-
-        return EINVAL;
-    }
 
     return 0;
 }
-*/
 
 /// Runs on it's own thread. Waits for events
 /// on any of the lines in `gpio_plugin.listening_lines`
@@ -829,60 +826,62 @@ DART_EXPORT int gpiodp_get_line_details(unsigned int line_handle, struct proxy_g
     return 0;
 }
 
-static int gpiodp_request_line() {
+DART_EXPORT int gpiodp_request_line(struct proxy_gpiod_line_config_struct *value) {
     struct line_config config;
-    struct std_value *temp;
+    //struct std_value *temp;
     bool is_event_line = false;
     char *consumer;
     int ok, fd;
 
     // check that the arg is a map
-    if (object->std_arg.type != kStdMap) {
+/*    if (object->std_arg.type != kStdMap) {
         return platch_respond_illegal_arg_std(
             "Expected `arg` to be a `Map<String, dynamic>`"
         );
-    }
+    }*/
 
     // ensure GPIO is initialized
     ok = gpiodp_ensure_gpiod_initialized();
     if (ok != 0) {
-        return gpiodp_respond_init_failed(responsehandle);
+        return gpiodp_respond_init_failed();
     }
 
-    temp = stdmap_get_str(&object->std_arg, "consumer");
-    if (!temp || STDVALUE_IS_NULL(*temp)) {
+
+    if ( !(value->consumer)) {
         consumer = NULL;
-    } else if (temp && (temp->type == kStdString)) {
-        consumer = temp->string_value;
     } else {
-        return platch_respond_illegal_arg_std(
-            "Expected `arg['consumer']` to be a string or null."
-        );
+        consumer = value->consumer;
     }
 
     // get the line config
-    ok = gpiodp_get_config(&object->std_arg, &config, responsehandle);
+    ok = gpiodp_get_config(value, &config);
     if (ok != 0) return ok;
 
     // get the triggers
-    temp = stdmap_get_str(&object->std_arg, "triggers");
-    if ((!temp) || STDVALUE_IS_NULL(*temp)) {
+    //temp = stdmap_get_str(&object->std_arg, "triggers");
+    if (!(value->triggers)) {
         if (config.direction == GPIOD_LINE_DIRECTION_INPUT) {
             goto invalid_triggers;
         }
-    } else if (temp && STDVALUE_IS_LIST(*temp)) {
+    } else {
         if (config.direction == GPIOD_LINE_DIRECTION_OUTPUT) {
-            goto invalid_triggers;
+            //goto invalid_triggers;
+            invalid_triggers:
+            return platch_respond_illegal_arg_std(
+                "Expected `arg['triggers']` to be a `List<String>` of "
+                "string-ifications of [SignalEdge] when direction is input "
+                "(no null values in the list), null when direction is output."
+            );
         }
 
         // iterate through elements in the trigger list.
-        for (int i = 0; i < temp->size; i++) {
-            if (temp->list[i].type != kStdString) {
+        //for (int i = 0; i < temp->size; i++) {
+/*            if (temp->list[i].type != kStdString) {
                 goto invalid_triggers;
-            }
+            }*/
 
             // now update config.request_type accordingly.
-            if STREQ("SignalEdge.falling", temp->list[i].string_value) {
+            if (value->triggers & GPIOD_LINE_SIGNAL_EDGE_FALLING == GPIOD_LINE_SIGNAL_EDGE_FALLING) /*STREQ("SignalEdge.falling", temp->list[i].string_value)*/ {
                 is_event_line = true;
                 switch (config.request_type) {
                     case GPIOD_LINE_REQUEST_DIRECTION_INPUT:
@@ -896,7 +895,8 @@ static int gpiodp_request_line() {
                         break;
                     default: break;
                 }
-            } else if STREQ("SignalEdge.rising", temp->list[i].string_value) {
+            }
+            if (value->triggers & GPIOD_LINE_SIGNAL_EDGE_RISING == GPIOD_LINE_SIGNAL_EDGE_RISING)  {
                 is_event_line = true;
                 switch (config.request_type) {
                     case GPIOD_LINE_REQUEST_DIRECTION_INPUT:
@@ -910,18 +910,16 @@ static int gpiodp_request_line() {
                         break;
                     default: break;
                 }
-            } else {
-                goto invalid_triggers;
             }
-        }
-    } else {
+            //TODO: Error?
+    } /*else {
         invalid_triggers:
         return platch_respond_illegal_arg_std(
             "Expected `arg['triggers']` to be a `List<String>` of "
             "string-ifications of [SignalEdge] when direction is input "
             "(no null values in the list), null when direction is output."
         );
-    }
+    }*/
 
     // finally request the line
     ok = libgpiod.line_request(
@@ -934,7 +932,7 @@ static int gpiodp_request_line() {
         config.initial_value
     );
     if (ok == -1) {
-        return platch_respond_native_error_std(responsehandle, errno);
+        return platch_respond_native_error_std(errno);
     }
 
     if (is_event_line) {
@@ -949,7 +947,7 @@ static int gpiodp_request_line() {
         if (ok == -1) {
             perror("[flutter_gpiod] Could not add GPIO line to epollfd. epoll_ctl");
             libgpiod.line_release(config.line);
-            return platch_respond_native_error_std(responsehandle, errno);
+            return platch_respond_native_error_std(errno);
         }
 
         gpiod_line_bulk_add(&gpio_plugin.listening_lines, config.line);
@@ -957,7 +955,7 @@ static int gpiodp_request_line() {
         pthread_mutex_unlock(&gpio_plugin.listening_lines_mutex);
     }
 
-    return platch_respond_success_std(responsehandle, NULL);
+    return platch_respond_success_std(NULL);
 }
 
 DART_EXPORT int gpiodp_release_line(unsigned int line_handle) {

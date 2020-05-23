@@ -54,3 +54,31 @@ class Bias {
   static List<Bias> get values => [asIs, disable, pullUp, pullDown];
   static Bias parse(int value, [Bias defaultValue]) => values.firstWhere((element) => element.value == value,orElse: ()=>defaultValue);
 }
+
+/// The way high voltage / low voltage should be written
+/// to the line.
+class OutputMode {
+  final int value;
+  const OutputMode._internal(this.value);
+
+  static const OutputMode pushPull = const OutputMode._internal(1);
+  static const OutputMode openDrain = const OutputMode._internal(2);
+  static const OutputMode openSource = const OutputMode._internal(3);
+
+  static List<OutputMode> get values => [pushPull, openDrain, openSource];
+  static OutputMode parse(int value, [OutputMode defaultValue]) => values.firstWhere((element) => element.value == value,orElse: ()=>defaultValue);
+}
+
+
+/// It's a rising edge when the voltage goes from low to high,
+/// falling from high to low.
+class SignalEdge {
+  final int value;
+  const SignalEdge._internal(this.value);
+
+  static const SignalEdge rising = const SignalEdge._internal(1);
+  static const SignalEdge falling = const SignalEdge._internal(2);
+
+  static List<SignalEdge> get values => [rising, falling];
+  static SignalEdge parse(int value, [SignalEdge defaultValue]) => values.firstWhere((element) => element.value == value,orElse: ()=>defaultValue);
+}

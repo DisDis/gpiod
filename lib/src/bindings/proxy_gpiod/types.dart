@@ -2,6 +2,32 @@ import 'dart:ffi';
 
 import 'package:ffi/ffi.dart';
 
+class LineConfig extends Struct{
+//  Pointer<gpiod_line> line;
+//  LineDirection direction;
+//  LineRequestType request_type;
+  @Uint32()
+  int lineHandle;
+
+  Pointer<Utf8>  consumer;
+  @Uint32()
+  int direction;
+  @Uint32()
+  int outputMode;
+  @Uint32()
+  int bias;
+  @Uint32()
+  int activeState;
+  @Uint32()
+  int triggers;
+  @Uint32()
+  int initialValue;
+
+  factory LineConfig.allocate() =>
+      allocate<LineConfig>().ref
+        ..consumer = null;
+}
+
 
 class ChipDetails extends Struct{
   Pointer<Utf8> name;

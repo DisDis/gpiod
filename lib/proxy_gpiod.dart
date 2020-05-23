@@ -12,15 +12,8 @@ import 'package:mutex/mutex.dart';
 import 'package:meta/meta.dart';
 import 'package:async/async.dart';
 
-/// The way high voltage / low voltage should be written
-/// to the line.
-enum OutputMode { pushPull, openDrain, openSource }
 
 
-
-/// It's a rising edge when the voltage goes from low to high,
-/// falling from high to low.
-enum SignalEdge { rising, falling }
 
 @immutable
 class _GlobalSignalEvent {
@@ -119,18 +112,19 @@ class _FlutterGpiodPlatformSide {
         ActiveState activeState,
         Set<SignalEdge> triggers,
         bool initialValue}) async {
-    //TODO: FIXIT
-//    _proxyGPIOD.request_line();
-//    await _methodChannel.invokeMethod("requestLine", {
-//      'lineHandle': lineHandle,
-//      'consumer': consumer,
-//      'direction': direction.toString(),
-//      'outputMode': outputMode?.toString(),
-//      'bias': bias?.toString(),
-//      'activeState': activeState.toString(),
-//      'triggers': triggers?.map((t) => t.toString())?.toList(),
-//      'initialValue': initialValue
-//    });
+    //TODO: Error?
+    int triggersValue = 0;
+    triggers.forEach((element) { triggersValue|=element.value;});
+    var lineConfig = LineConfig.allocate();
+    lineConfig.lineHandle = lineHandle;
+    lineConfig.consumer = Utf8.toUtf8(consumer);
+    lineConfig.direction = direction.value;
+    lineConfig.outputMode = outputMode?.value;
+    lineConfig.bias = bias?.value;
+    lineConfig.activeState = activeState.value;
+    lineConfig.triggers = triggersValue;
+    lineConfig.initialValue = initialValue? 1 : 0;
+    _proxyGPIOD.request_line(lineConfig.addressOf);
   }
 
   static Future<void> releaseLine(int lineHandle) async {

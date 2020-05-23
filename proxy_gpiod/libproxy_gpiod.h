@@ -17,6 +17,18 @@ enum {
 
 #endif
 
+
+enum {
+    GPIOD_LINE_OUPUT_MODE_PUSHPULL = 1,
+    GPIOD_LINE_OUPUT_MODE_OPENDRAIN,
+    GPIOD_LINE_OUPUT_MODE_OPENSOURCE
+};
+
+
+#define GPIOD_LINE_SIGNAL_EDGE_RISING 1
+#define GPIOD_LINE_SIGNAL_EDGE_FALLING 2
+
+
 #define GPIOD_PLUGIN_METHOD_CHANNEL "plugins.flutter.io/gpiod"
 #define GPIOD_PLUGIN_EVENT_CHANNEL  "plugins.flutter.io/gpiod_events"
 
