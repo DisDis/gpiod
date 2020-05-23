@@ -1,21 +1,3 @@
-/// Whether there should be pull-up or -down
-/// resistors connected to the line.
-enum Bias { disable, pullUp, pullDown }
-
-/// Whether the line should be high voltage when
-/// it's active or low voltage.
-enum ActiveState { high, low }
-
-/// It's a rising edge when the voltage goes from low to high,
-/// falling from high to low.
-enum SignalEdge { rising, falling }
-
-/// The way high voltage / low voltage should be written
-/// to the line.
-enum OutputMode {
-  pushPull, openDrain, openSource
-}
-
 /**
  * @brief Available types of requests.
  */

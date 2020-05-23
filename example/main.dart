@@ -2,10 +2,7 @@ import 'dart:convert';
 
 import 'dart:ffi';
 import 'package:ffi/ffi.dart';
-import 'package:gpiod/gpiod.dart';
 import 'package:gpiod/proxy_gpiod.dart';
-import 'package:gpiod/pthread.dart';
-import 'package:gpiod/src/utils.dart';
 import 'package:logging/logging.dart';
 import 'dart:ffi';
 import 'dart:isolate';
@@ -74,10 +71,49 @@ void main() async {
     final gpio = await FlutterGpiod.getInstance();
     _status(gpio.chips);
     _led(gpio.chips);
+    _pirTest(gpio.chips);
+    _button(gpio.chips);
 
   } catch(e, st){
     _log.severe("Error",e, st);
   }
+}
+
+
+Future _pirTest(List<GpioChip> chips) async {
+  print('PIR');
+  final lineLED =
+  chips.singleWhere((chip) => chip.label == 'pinctrl-bcm2835').lines[14];
+  final linePIR =
+  chips.singleWhere((chip) => chip.label == 'pinctrl-bcm2835').lines[17];
+
+  /// Request BCM 14 as output.
+  await lineLED.requestOutput(
+      consumer: "flutter_gpiod test", initialValue: true);
+
+  for (var i = 0; i<2 ;i++) {
+    /// Pulse the line.
+    /// Set it to inactive. (so low voltage = GND)
+    await lineLED.setValue(false);
+    await Future.delayed(Duration(milliseconds: 500));
+    await lineLED.setValue(true);
+    await Future.delayed(Duration(milliseconds: 500));
+  }
+  await lineLED.setValue(false);
+
+  await linePIR.requestInput(
+      consumer: "PIR",
+      //        activeState: ActiveState.low,
+      triggers: {SignalEdge.falling, SignalEdge.rising});
+
+  /// Log line events for eternity.
+  linePIR.onEvent.listen((event) async{
+    print("PIR: $event");
+    await lineLED.setValue(event.edge == SignalEdge.falling);
+  });
+
+//    await lineLED.release();
+//    await linePIR.release();
 }
 
 
@@ -108,6 +144,25 @@ Future _led(List<GpioChip> chips) async {
     await Future.delayed(Duration(milliseconds: 500));
   }
   await line14.release();
+}
+
+Future _button(List<GpioChip> chips) async {
+  print('BUTTON');
+  final line15 =
+  chips.singleWhere((chip) => chip.label == 'pinctrl-bcm2835').lines[15];
+
+  await line15.requestInput(
+      consumer: "BUTTON",
+      activeState: ActiveState.high,
+      triggers: {SignalEdge.falling, SignalEdge.rising});
+
+  /// Log line events for eternity.
+  line15.onEvent.listen((event) {
+    print("Button: $event");
+  });
+
+//   /// Release the line, though we'll never reach this point.
+//    await line15.release();
 }
 
 Future _status(List<GpioChip> chips) async {
