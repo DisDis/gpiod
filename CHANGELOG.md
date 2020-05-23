@@ -1,3 +1,8 @@
+## 1.0.0
+
+* implement FFI for proxy_gpiod
+* remove epoll, pthread
+
 ## 0.1.0
 
 * fix lot of bugs

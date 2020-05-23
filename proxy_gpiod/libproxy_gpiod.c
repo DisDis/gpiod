@@ -14,17 +14,6 @@
 //#include <pluginregistry.h>
 //#include <plugins/gpiod_plugin.h>
 
-Dart_Port send_port_;
-
-
-void print_hello() {
-    printf("Hello, World!\n");
-}
-
-DART_EXPORT void proxy_gpiod_register_send_port(Dart_Port send_port) {
-  send_port_ = send_port;
-}
-
 struct proxy_gpiod_chip_details_struct{
   char* name;
   char* label;
@@ -91,6 +80,7 @@ struct {
     struct gpiod_line_bulk listening_lines;
     pthread_t line_event_listener_thread;
     bool should_emit_events;
+    Dart_Port send_port_;
 } gpio_plugin;
 
 struct {
@@ -146,6 +136,66 @@ struct line_config {
     int initial_value;
     uint8_t flags;
 };
+
+DART_EXPORT void proxy_gpiod_register_send_port(Dart_Port send_port) {
+  gpio_plugin.send_port_ = send_port;
+  gpio_plugin.should_emit_events = true;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// Dynamic linking of dart_native_api.h for the next two samples.
+typedef bool (*Dart_PostCObjectType)(Dart_Port port_id, Dart_CObject* message);
+Dart_PostCObjectType Dart_PostCObject_ = NULL;
+
+DART_EXPORT void proxy_gpiod_register_dart_postcobject(
+    Dart_PostCObjectType function_pointer) {
+  Dart_PostCObject_ = function_pointer;
+}
+
+typedef Dart_Port (*Dart_NewNativePortType)(const char* name,
+                                            Dart_NativeMessageHandler handler,
+                                            bool handle_concurrently);
+Dart_NewNativePortType Dart_NewNativePort_ = NULL;
+
+DART_EXPORT void proxy_gpiod_register_dart_newnativeport(
+    Dart_NewNativePortType function_pointer) {
+  Dart_NewNativePort_ = function_pointer;
+}
+
+typedef bool (*Dart_CloseNativePortType)(Dart_Port native_port_id);
+Dart_CloseNativePortType Dart_CloseNativePort_ = NULL;
+
+DART_EXPORT void proxy_gpiod_register_dart_closenativeport(
+    Dart_CloseNativePortType function_pointer) {
+  Dart_CloseNativePort_ = function_pointer;
+}
+
+
+
+void print_hello() {
+    printf("Hello, World!\n");
+      const char* methodname = "signal";
+      int value = 100;
+
+      Dart_CObject c_value;
+      c_value.type = Dart_CObject_kInt32;
+      c_value.value.as_int32 = value;
+
+      Dart_CObject c_method_name;
+      c_method_name.type = Dart_CObject_kString;
+      c_method_name.value.as_string = (char*)(methodname);
+
+      Dart_CObject* c_request_arr[] = {&c_method_name, &c_value};
+      Dart_CObject c_request;
+      c_request.type = Dart_CObject_kArray;
+      c_request.value.as_array.values = c_request_arr;
+      c_request.value.as_array.length =
+          sizeof(c_request_arr) / sizeof(c_request_arr[0]);
+
+      Dart_PostCObject_(gpio_plugin.send_port_, &c_request);
+}
+
 
 // because libgpiod doesn't provide it, but it's useful
 static inline void gpiod_line_bulk_remove(struct gpiod_line_bulk *bulk, struct gpiod_line *line) {
@@ -499,6 +549,8 @@ static int gpiodp_get_config(struct proxy_gpiod_line_config_struct *value,
     return 0;
 }
 
+static const char* signal_methodname = "signal";
+
 /// Runs on it's own thread. Waits for events
 /// on any of the lines in `gpio_plugin.listening_lines`
 /// and sends them on to the event channel, if someone
@@ -559,7 +611,38 @@ static void *gpiodp_io_loop(void *userdata) {
                 line_handle += libgpiod.chip_num_lines(chip);
 
             // finally send the event to the event channel.
-            //TODO: FIX IT!
+
+          Dart_CObject c_method_name;
+          c_method_name.type = Dart_CObject_kString;
+          c_method_name.value.as_string = (char*)(signal_methodname);
+
+          Dart_CObject c_line_handle;
+          c_line_handle.type = Dart_CObject_kInt32;
+          c_line_handle.value.as_int32 = line_handle;
+
+          Dart_CObject c_signal_edge;
+          c_signal_edge.type = Dart_CObject_kInt32;
+          c_signal_edge.value.as_int32 = event.event_type == GPIOD_LINE_EVENT_FALLING_EDGE? GPIOD_LINE_SIGNAL_EDGE_FALLING : GPIOD_LINE_SIGNAL_EDGE_RISING;
+
+          Dart_CObject c_signal_time_sec;
+          c_signal_time_sec.type = Dart_CObject_kInt64;
+          c_signal_time_sec.value.as_int64 = (int64_t)event.ts.tv_sec;
+
+          Dart_CObject c_signal_time_nsec;
+          c_signal_time_nsec.type = Dart_CObject_kInt64;
+          c_signal_time_nsec.value.as_int64 = (int64_t)event.ts.tv_nsec;
+
+
+          Dart_CObject* c_request_arr[] = {&c_method_name, &c_line_handle, &c_signal_edge, &c_signal_time_sec, &c_signal_time_nsec};
+          Dart_CObject c_request;
+          c_request.type = Dart_CObject_kArray;
+          c_request.value.as_array.values = c_request_arr;
+          c_request.value.as_array.length =
+              sizeof(c_request_arr) / sizeof(c_request_arr[0]);
+
+          Dart_PostCObject_(gpio_plugin.send_port_, &c_request);
+
+
           /*  ok = platch_send_success_event_std(
                 GPIOD_PLUGIN_EVENT_CHANNEL,
                 &(struct std_value) {
