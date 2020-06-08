@@ -232,7 +232,7 @@ static int gpiodp_ensure_gpiod_initialized(void) {
 
     libgpiod.handle = dlopen("libgpiod.so", RTLD_LOCAL | RTLD_LAZY);
     if (!libgpiod.handle) {
-        perror("[flutter_gpiod] could not load libgpiod.so. dlopen");
+        perror("[proxy_gpiod] could not load libgpiod.so. dlopen");
         return errno;
     }
 
@@ -277,7 +277,7 @@ static int gpiodp_ensure_gpiod_initialized(void) {
     // iterate through the GPIO chips
     chipiter = libgpiod.chip_iter_new();
     if (!chipiter) {
-        perror("[flutter_gpiod] could not create GPIO chip iterator. gpiod_chip_iter_new");
+        perror("[proxy_gpiod] could not create GPIO chip iterator. gpiod_chip_iter_new");
         return errno;
     }
 
@@ -314,7 +314,7 @@ static int gpiodp_ensure_gpiod_initialized(void) {
 
     fd = epoll_create1(0);
     if (fd == -1) {
-        perror("[flutter_gpiod] Could not create line event listen epoll");
+        perror("[proxy_gpiod] Could not create line event listen epoll");
         return errno;
     }
 
@@ -330,7 +330,7 @@ static int gpiodp_ensure_gpiod_initialized(void) {
         NULL
     );
     if (ok == -1) {
-        perror("[flutter_gpiod] could not create line event listener thread");
+        perror("[proxy_gpiod] could not create line event listener thread");
         return errno;
     }
 
@@ -341,7 +341,7 @@ static int gpiodp_ensure_gpiod_initialized(void) {
 /// Sends a platform message to `handle` saying that the libgpiod binding has failed to initialize.
 /// Should be called when `gpiodp_ensure_gpiod_initialized()` has failed.
 static int gpiodp_respond_init_failed(struct error_data* error_data) {
-    error_data->msg = "proxy_gpiod failed to initialize libgpiod bindings. See flutter-pi log for details.";
+    error_data->msg = "proxy_gpiod failed to initialize libgpiod bindings. See log for details.";
     return -1;
 }
 
@@ -578,7 +578,7 @@ static void *gpiodp_io_loop(void *userdata) {
 
         ok = epoll_wait(gpio_plugin.epollfd, fdevents, 10, -1);
         if ((ok == -1) && (errno != EINTR)) {
-            perror("[flutter_gpiod] error while waiting for line events, epoll");
+            perror("[proxy_gpiod] error while waiting for line events, epoll");
             continue;
         } else {
             n_fdevents = ok;
@@ -602,7 +602,7 @@ static void *gpiodp_io_loop(void *userdata) {
             // read the line events
             ok = libgpiod.line_event_read(line, &event);
             if (ok == -1) {
-                perror("[flutter_gpiod] Could not read events from GPIO line. gpiod_line_event_read");
+                perror("[proxy_gpiod] Could not read events from GPIO line. gpiod_line_event_read");
                 continue;
             }
 
@@ -873,7 +873,7 @@ DART_EXPORT int gpiodp_request_line(struct proxy_gpiod_line_config_struct *value
     }
 
     // get the line config
-    ok = gpiodp_get_config(value, &config);
+    ok = gpiodp_get_config(value, &config, error_data);
     if (ok != 0) return ok;
 
     // get the triggers
@@ -890,6 +890,7 @@ DART_EXPORT int gpiodp_request_line(struct proxy_gpiod_line_config_struct *value
                 "Expected `arg['triggers']` to be a `List<String>` of "
                 "string-ifications of [SignalEdge] when direction is input "
                 "(no null values in the list), null when direction is output."
+                ,error_data
             );
         }
 
@@ -964,7 +965,7 @@ DART_EXPORT int gpiodp_request_line(struct proxy_gpiod_line_config_struct *value
                        &(struct epoll_event) {.events = EPOLLPRI | EPOLLIN, .data.fd = fd}
         );
         if (ok == -1) {
-            perror("[flutter_gpiod] Could not add GPIO line to epollfd. epoll_ctl");
+            perror("[proxy_gpiod] Could not add GPIO line to epollfd. epoll_ctl");
             libgpiod.line_release(config.line);
             return platch_respond_native_error_std(errno, error_data);
         }
@@ -1009,7 +1010,7 @@ DART_EXPORT int gpiodp_release_line(unsigned int line_handle, struct error_data*
 
         ok = epoll_ctl(gpio_plugin.epollfd, EPOLL_CTL_DEL, fd, NULL);
         if (ok == -1) {
-            perror("[flutter_gpiod] Could not remove GPIO line from epollfd. epoll_ctl");
+            perror("[proxy_gpiod] Could not remove GPIO line from epollfd. epoll_ctl");
             return platch_respond_native_error_std(errno, error_data);
         }
 
@@ -1018,7 +1019,7 @@ DART_EXPORT int gpiodp_release_line(unsigned int line_handle, struct error_data*
 
     ok = libgpiod.line_release(line);
     if (ok == -1) {
-        perror("[flutter_gpiod] Could not release line. gpiod_line_release");
+        perror("[proxy_gpiod] Could not release line. gpiod_line_release");
         return platch_respond_native_error_std(errno, error_data);
     }
 
@@ -1146,7 +1147,7 @@ DART_EXPORT int gpiodp_supports_bias(int* result, struct error_data* error_data)
        return gpiodp_respond_init_failed(error_data);
     }
 
-    *result = libgpiod.line_bias;
+    *result = libgpiod.line_bias != 0? 1: 0;
     return 0;
 }
 
@@ -1159,6 +1160,6 @@ DART_EXPORT int gpiodp_supports_reconfiguration(int* result, struct error_data* 
        return gpiodp_respond_init_failed(error_data);
     }
 
-    *result = libgpiod.line_set_config;
+    *result = libgpiod.line_set_config != 0? 1 : 0;
     return 0;
 }
