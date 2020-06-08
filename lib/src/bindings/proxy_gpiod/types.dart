@@ -2,6 +2,16 @@ import 'dart:ffi';
 
 import 'package:ffi/ffi.dart';
 
+class ErrorData extends Struct{
+  Pointer<Utf8>  error;
+  @Int32()
+  int code;
+  factory ErrorData.allocate() =>
+      allocate<ErrorData>().ref
+        ..code =0
+        ..error = null;
+}
+
 class LineConfig extends Struct{
 //  Pointer<gpiod_line> line;
 //  LineDirection direction;

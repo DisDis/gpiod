@@ -13,7 +13,11 @@ import 'package:meta/meta.dart';
 import 'package:async/async.dart';
 
 
-
+class GPIOError extends Error {
+  final String message;
+  GPIOError(this.message);
+  String toString() => "GPIO error: $message";
+}
 
 @immutable
 class _GlobalSignalEvent {
@@ -72,6 +76,10 @@ class _ProxyGpiodPlatformSide {
   static LibraryProxyGPIOD _proxyGPIOD = new LibraryProxyGPIOD();
   static bool _portIsRegistered = false;
 
+  static GPIOError _createError(Pointer<ErrorData> _error){
+    return new GPIOError(_error.ref.error!=null ?Utf8.fromUtf8(_error.ref.error): 'code = ${_error.ref.code}');
+  } 
+
   static StreamController<_GlobalSignalEvent> _streamController = new StreamController<_GlobalSignalEvent>.broadcast();
   static final _interactiveRequests = ReceivePort()..listen((dynamic message){
     var msgArr = (message as List);
@@ -93,26 +101,35 @@ class _ProxyGpiodPlatformSide {
         .map((arg) => _GlobalSignalEvent._fromList(arg as List));*/
   }
 
+  static Pointer<ErrorData> _errorData = allocate<ErrorData>();
+  static Pointer<Int32> _resultData = allocate<Int32>();
   static int getNumChips() {
-    return _proxyGPIOD.get_num_chips();
+    if (_proxyGPIOD.get_num_chips(_resultData, _errorData) != 0){
+        throw _createError(_errorData);
+    }
+    return _resultData.value;
   }
 
   static ChipDetails getChipDetails(int chipIndex) {
     var chipDetails = ChipDetails.allocate();
-    //TODO: Error?
-    _proxyGPIOD.get_chip_details(chipIndex, chipDetails.addressOf);
+    if (_proxyGPIOD.get_chip_details(chipIndex, chipDetails.addressOf, _errorData) != 0){
+        throw _createError(_errorData);
+    }
     return chipDetails;
   }
 
   static int getLineHandle(int chipIndex, int lineIndex) {
-    //TODO: Error?
-    return _proxyGPIOD.get_line_handle(chipIndex, lineIndex);
+    if(_proxyGPIOD.get_line_handle(chipIndex, lineIndex,_resultData, _errorData) != 0){
+        throw _createError(_errorData);
+    }
+    return _resultData.value;
   }
 
   static LineInfo getLineInfo(int lineHandle){
     var lineDetails = LineDetails.allocate();
-    //TODO: Error?
-    _proxyGPIOD.get_line_details(lineHandle, lineDetails.addressOf);
+    if (_proxyGPIOD.get_line_details(lineHandle, lineDetails.addressOf, _errorData) != 0){
+        throw _createError(_errorData);
+    }
     return LineInfo._fromStruct(lineDetails);
   }
 
@@ -125,7 +142,6 @@ class _ProxyGpiodPlatformSide {
         ActiveState activeState,
         Set<SignalEdge> triggers,
         bool initialValue}) {
-    //TODO: Error?
     int triggersValue = 0;
     if (triggers != null) {
       triggers.forEach((element) {
@@ -141,12 +157,15 @@ class _ProxyGpiodPlatformSide {
     lineConfig.activeState = activeState==null? 0:activeState.value;
     lineConfig.triggers = triggersValue;
     lineConfig.initialValue = initialValue==null?0 : initialValue? 1 : 0;
-    _proxyGPIOD.request_line(lineConfig.addressOf);
+    if (_proxyGPIOD.request_line(lineConfig.addressOf, _errorData) != 0){
+        throw _createError(_errorData);
+    }
   }
 
   static void releaseLine(int lineHandle) {
-    //TODO: FIXIT
-    _proxyGPIOD.release_line(lineHandle);
+    if (_proxyGPIOD.release_line(lineHandle, _errorData) != 0){
+        throw _createError(_errorData);
+    }
   }
 
   static void reconfigureLine(
@@ -156,7 +175,6 @@ class _ProxyGpiodPlatformSide {
         Bias bias,
         ActiveState activeState,
         bool initialValue}) {
-    //TODO: FIXIT
     var lineConfig = LineConfig.allocate();
     lineConfig.lineHandle = lineHandle;
     lineConfig.direction = direction.value;
@@ -164,24 +182,36 @@ class _ProxyGpiodPlatformSide {
     lineConfig.bias = bias==null?0: bias.value;
     lineConfig.activeState = activeState==null?0:activeState.value;
     lineConfig.initialValue = initialValue==null?0 : initialValue? 1 : 0;
-    _proxyGPIOD.reconfigure_line(lineConfig.addressOf);
+    if (_proxyGPIOD.reconfigure_line(lineConfig.addressOf, _errorData) != 0){
+        throw _createError(_errorData);
+    }
   }
 
   static bool getLineValue(int lineHandle) {
-    //TODO: FIXIT
-    return _proxyGPIOD.get_line_value(lineHandle) != 0 ? true : false;
+    if (_proxyGPIOD.get_line_value(lineHandle,_resultData, _errorData) != 0){
+        throw _createError(_errorData);
+    }
+    return _resultData.value != 0 ? true : false;
   }
 
   static void setLineValue(int lineHandle, bool value) {
-    _proxyGPIOD.set_line_value(lineHandle, value?1:0);
+    if (_proxyGPIOD.set_line_value(lineHandle, value?1:0, _errorData) != 0){
+        throw _createError(_errorData);
+    }
   }
 
   static bool supportsBias() {
-    return _proxyGPIOD.supports_bias() != 0;
+    if (_proxyGPIOD.supports_bias(_resultData, _errorData) != 0){
+        throw _createError(_errorData);
+    }
+    return _resultData.value != 0;
   }
 
   static bool supportsLineReconfiguration() {
-    return _proxyGPIOD.supports_reconfiguration() != 0;
+    if (_proxyGPIOD.supports_reconfiguration(_resultData , _errorData) != 0){
+        throw _createError(_errorData);
+    }
+    return _resultData.value != 0;
   }
 }
 

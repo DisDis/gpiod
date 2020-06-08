@@ -1,7 +1,12 @@
+## 1.0.1
+
+* added error handling
+
 ## 1.0.0
 
 * implement FFI for proxy_gpiod
 * remove epoll, pthread
+* initial port https://github.com/ardera/flutter_gpiod author: Hannes Winkler<ardera@web.de>
 
 ## 0.1.0
 
