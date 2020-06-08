@@ -20,7 +20,7 @@ Future _pirTest(List<GpioChip> chips) async{
   final lineLED =
   chips.singleWhere((chip) => chip.label == 'pinctrl-bcm2835').lines[14];
   final linePIR =
-  chips.singleWhere((chip) => chip.label == 'pinctrl-bcm2835').lines[17];
+  chips.singleWhere((chip) => chip.label == 'pinctrl-bcm2835').lines[15];
 
   /// Request BCM 14 as output.
   lineLED.requestOutput(
@@ -83,16 +83,16 @@ Future _led(List<GpioChip> chips) async {
 
 Future _button(List<GpioChip> chips) {
   print('BUTTON');
-  final line15 =
-  chips.singleWhere((chip) => chip.label == 'pinctrl-bcm2835').lines[15];
+  final line =
+  chips.singleWhere((chip) => chip.label == 'pinctrl-bcm2835').lines[17];
 
-  line15.requestInput(
+  line.requestInput(
       consumer: "BUTTON",
       activeState: ActiveState.high,
       triggers: {SignalEdge.falling, SignalEdge.rising});
 
   /// Log line events for eternity.
-  line15.onEvent.listen((event) {
+  line.onEvent.listen((event) {
     print("Button: $event");
   });
 
