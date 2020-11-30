@@ -1,3 +1,7 @@
+## 2.0.0
+
+* fix release mode for Dart 2.10.4
+
 ## 1.0.1
 
 * added error handling

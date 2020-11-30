@@ -73,11 +73,11 @@ class SignalEvent {
 /// Provides raw access to the platform-side methods.
 @immutable
 class _ProxyGpiodPlatformSide {
-  static LibraryProxyGPIOD _proxyGPIOD = new LibraryProxyGPIOD();
+  static final LibraryProxyGPIOD _proxyGPIOD = new LibraryProxyGPIOD();
   static bool _portIsRegistered = false;
 
   static GPIOError _createError(Pointer<ErrorData> _error){
-    return new GPIOError(_error.ref.error!=null ?Utf8.fromUtf8(_error.ref.error): 'code = ${_error.ref.code}');
+    return new GPIOError(_error.ref.error!=null && _error.ref.error.address != 0 ?Utf8.fromUtf8(_error.ref.error): 'code = ${_error.ref.code}');
   } 
 
   static StreamController<_GlobalSignalEvent> _streamController = new StreamController<_GlobalSignalEvent>.broadcast();

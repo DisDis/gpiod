@@ -8,8 +8,8 @@ class ErrorData extends Struct{
   int code;
   factory ErrorData.allocate() =>
       allocate<ErrorData>().ref
-        ..code =0
-        ..error = null;
+        ..code = 0
+        ..error = Pointer.fromAddress(0);
 }
 
 class LineConfig extends Struct{
@@ -35,7 +35,7 @@ class LineConfig extends Struct{
 
   factory LineConfig.allocate() =>
       allocate<LineConfig>().ref
-        ..consumer = null;
+        ..consumer = Pointer.fromAddress(0);
 }
 
 
@@ -48,8 +48,8 @@ class ChipDetails extends Struct{
   int numLines;
   factory ChipDetails.allocate() =>
       allocate<ChipDetails>().ref
-        ..name = null
-        ..label = null
+        ..name = Pointer.fromAddress(0)
+        ..label = Pointer.fromAddress(0)
         ..numLines = 0;
 }
 
@@ -77,8 +77,8 @@ class LineDetails extends Struct{
   int activeState;
   factory LineDetails.allocate() =>
       allocate<LineDetails>().ref
-        ..name = null
-        ..consumer = null;
+        ..name = Pointer.fromAddress(0)
+        ..consumer = Pointer.fromAddress(0);
 }
 
 
