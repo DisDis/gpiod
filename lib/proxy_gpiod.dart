@@ -146,11 +146,11 @@ class _ProxyGpiodPlatformSide {
 
   static void requestLine(
       {int lineHandle = 0,
-        String consumer = '',
+        String? consumer,
         LineDirection direction = LineDirection.input,
-        OutputMode? outputMode,
-        Bias? bias,
-        ActiveState? activeState,
+        OutputMode outputMode = OutputMode.unknown,
+        Bias bias = Bias.unknown,
+        ActiveState activeState = ActiveState.unknown,
         Set<SignalEdge>? triggers,
         bool initialValue = false}) {
     int triggersValue = 0;
@@ -162,11 +162,11 @@ class _ProxyGpiodPlatformSide {
     var lineConfig = malloc.allocate<LineConfig>(sizeOf<LineConfig>());
     try{
     lineConfig.ref.lineHandle = lineHandle;
-    lineConfig.ref.consumer = consumer.toNativeUtf8();
+    lineConfig.ref.consumer = consumer==null? Pointer.fromAddress(0): consumer.toNativeUtf8();
     lineConfig.ref.direction = direction.value;
-    lineConfig.ref.outputMode = outputMode==null? 0 : outputMode.value;
-    lineConfig.ref.bias = bias==null?0: bias.value;
-    lineConfig.ref.activeState = activeState==null? 0:activeState.value;
+    lineConfig.ref.outputMode = outputMode.value;
+    lineConfig.ref.bias = bias.value;
+    lineConfig.ref.activeState = activeState.value;
     lineConfig.ref.triggers = triggersValue;
     lineConfig.ref.initialValue = initialValue? 1 : 0;
     if (_proxyGPIOD.request_line(lineConfig, _errorData) != 0){
@@ -186,17 +186,17 @@ class _ProxyGpiodPlatformSide {
   static void reconfigureLine(
       {int lineHandle = 0,
         LineDirection direction= LineDirection.input,
-        OutputMode? outputMode,
+        OutputMode outputMode = OutputMode.unknown,
         Bias bias = Bias.unknown,
-        ActiveState? activeState,
+        ActiveState activeState = ActiveState.unknown,
         bool initialValue = false}) {
     var lineConfig = malloc.allocate<LineConfig>(sizeOf<LineConfig>());
     try {
       lineConfig.ref.lineHandle = lineHandle;
       lineConfig.ref.direction = direction.value;
-      lineConfig.ref.outputMode = outputMode == null ? 0 : outputMode.value;
+      lineConfig.ref.outputMode = outputMode.value;
       lineConfig.ref.bias = bias.value;
-      lineConfig.ref.activeState = activeState == null ? 0 : activeState.value;
+      lineConfig.ref.activeState = activeState.value;
       lineConfig.ref.initialValue = initialValue ? 1 : 0;
       if (_proxyGPIOD.reconfigure_line(lineConfig, _errorData) != 0) {
         throw _createError(_errorData);
