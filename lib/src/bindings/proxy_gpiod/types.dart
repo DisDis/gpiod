@@ -3,13 +3,14 @@ import 'dart:ffi';
 import 'package:ffi/ffi.dart';
 
 class ErrorData extends Struct{
-  Pointer<Utf8>  error;
+  external Pointer<Utf8>  error;
   @Int32()
-  int code;
-  factory ErrorData.allocate() =>
-      allocate<ErrorData>().ref
-        ..code = 0
-        ..error = Pointer.fromAddress(0);
+  external int code;
+  ErrorData():super(){
+    code = 0;
+    error = Pointer.fromAddress(0);
+  }
+
 }
 
 class LineConfig extends Struct{
@@ -17,68 +18,81 @@ class LineConfig extends Struct{
 //  LineDirection direction;
 //  LineRequestType request_type;
   @Uint32()
-  int lineHandle;
+  external int lineHandle;
 
-  Pointer<Utf8>  consumer;
+  external Pointer<Utf8>  consumer;
   @Uint32()
-  int direction;
+  external int direction;
   @Uint32()
-  int outputMode;
+  external int outputMode;
   @Uint32()
-  int bias;
+  external int bias;
   @Uint32()
-  int activeState;
+  external int activeState;
   @Uint32()
-  int triggers;
+  external int triggers;
   @Uint32()
-  int initialValue;
+  external int initialValue;
 
-  factory LineConfig.allocate() =>
-      allocate<LineConfig>().ref
-        ..consumer = Pointer.fromAddress(0);
+  LineConfig():super(){
+    consumer = Pointer.fromAddress(0);
+  }
 }
 
 
-class ChipDetails extends Struct{
-  Pointer<Utf8> name;
+class ChipDetails{
+  final String name;
+  final String label;
+  final int numLines;
 
-  Pointer<Utf8> label;
+  ChipDetails(this.name, this.label, this.numLines);
+  factory ChipDetails.from(ChipDetailsStruct value){
+   return ChipDetails(value.name.toDartString(), value.label.toDartString(), value.numLines);
+  }
+}
+
+class ChipDetailsStruct extends Struct{
+  external Pointer<Utf8> name;
+
+  external Pointer<Utf8> label;
 
   @Int32()
-  int numLines;
-  factory ChipDetails.allocate() =>
-      allocate<ChipDetails>().ref
-        ..name = Pointer.fromAddress(0)
-        ..label = Pointer.fromAddress(0)
-        ..numLines = 0;
+  external int numLines;
+
+  ChipDetailsStruct():super(){
+     name = Pointer.fromAddress(0);
+     label = Pointer.fromAddress(0);
+     numLines = 0;
+   }
+
 }
 
 class LineDetails extends Struct{
-  Pointer<Utf8> name;
-  Pointer<Utf8> consumer;
+  external Pointer<Utf8> name;
+  external Pointer<Utf8> consumer;
   @Uint8()
-  int isUsed;
+  external int isUsed;
   @Uint8()
-  int isRequested;
+  external int isRequested;
   @Uint8()
-  int isFree;
+  external int isFree;
   @Uint32()
-  int direction;
+  external int direction;
   //@Uint32()
   //int outputMode;
   @Uint32()
-  int open_source;
+  external int open_source;
   @Uint32()
-  int open_drain;
+  external int open_drain;
 
   @Uint32()
-  int bias;
+  external int bias;
   @Uint32()
-  int activeState;
-  factory LineDetails.allocate() =>
-      allocate<LineDetails>().ref
-        ..name = Pointer.fromAddress(0)
-        ..consumer = Pointer.fromAddress(0);
+  external int activeState;
+  LineDetails():super(){
+    name = Pointer.fromAddress(0);
+    consumer = Pointer.fromAddress(0);
+  }
 }
 
 

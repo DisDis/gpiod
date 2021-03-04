@@ -21,6 +21,8 @@ class ActiveState {
   final int value;
   const ActiveState._internal(this.value);
 
+
+  static const ActiveState unknown = const ActiveState._internal(0);
   //GPIOD_LINE_ACTIVE_STATE_HIGH = 1,
   /**< The active state of a GPIO is active-high. */
   static const ActiveState high = const ActiveState._internal(1);
@@ -38,6 +40,8 @@ class Bias {
   final int value;
   const Bias._internal(this.value);
 
+
+  static const Bias unknown = const Bias._internal(0);
   //GPIOD_LINE_BIAS_AS_IS= 1
   /**< The internal bias state is unknown. */
   static const Bias asIs = const Bias._internal(1);
@@ -52,7 +56,7 @@ class Bias {
   static const Bias pullDown = const Bias._internal(4);
 
   static List<Bias> get values => [asIs, disable, pullUp, pullDown];
-  static Bias parse(int value, [Bias defaultValue]) => values.firstWhere((element) => element.value == value,orElse: ()=>defaultValue);
+  static Bias parse(int value, [Bias defaultValue = Bias.unknown]) => values.firstWhere((element) => element.value == value,orElse: ()=>defaultValue);
 }
 
 /// The way high voltage / low voltage should be written
@@ -61,12 +65,13 @@ class OutputMode {
   final int value;
   const OutputMode._internal(this.value);
 
+  static const OutputMode unknown = const OutputMode._internal(0);
   static const OutputMode pushPull = const OutputMode._internal(1);
   static const OutputMode openDrain = const OutputMode._internal(2);
   static const OutputMode openSource = const OutputMode._internal(3);
 
   static List<OutputMode> get values => [pushPull, openDrain, openSource];
-  static OutputMode parse(int value, [OutputMode defaultValue]) => values.firstWhere((element) => element.value == value,orElse: ()=>defaultValue);
+  static OutputMode parse(int value, [OutputMode defaultValue = OutputMode.unknown]) => values.firstWhere((element) => element.value == value,orElse: ()=>defaultValue);
 }
 
 
@@ -80,5 +85,5 @@ class SignalEdge {
   static const SignalEdge falling = const SignalEdge._internal(2);
 
   static List<SignalEdge> get values => [rising, falling];
-  static SignalEdge parse(int value, [SignalEdge defaultValue]) => values.firstWhere((element) => element.value == value,orElse: ()=>defaultValue);
+  static SignalEdge parse(int value, [SignalEdge defaultValue = SignalEdge.rising]) => values.firstWhere((element) => element.value == value,orElse: ()=>defaultValue);
 }

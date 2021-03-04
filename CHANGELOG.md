@@ -1,3 +1,7 @@
+## 2.0.1
+
+* support null-safety
+
 ## 2.0.0
 
 * fix release mode for Dart 2.10.4

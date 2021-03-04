@@ -81,7 +81,7 @@ Future _led(List<GpioChip> chips) async {
   line14.release();
 }
 
-Future _button(List<GpioChip> chips) {
+Future _button(List<GpioChip> chips) async{
   print('BUTTON');
   final line =
   chips.singleWhere((chip) => chip.label == 'pinctrl-bcm2835').lines[17];
@@ -100,7 +100,7 @@ Future _button(List<GpioChip> chips) {
 //    await line15.release();
 }
 
-Future _status(List<GpioChip> chips) {
+Future _status(List<GpioChip> chips) async{
   /// Print out all GPIO chips and all lines
   /// for all GPIO chips.
   for (var chip in chips) {

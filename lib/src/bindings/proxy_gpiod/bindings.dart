@@ -52,7 +52,7 @@ class LibraryProxyGPIOD {
   final int Function(Pointer<Int32> result, Pointer<ErrorData> error) get_num_chips = _dynamicLibrary.lookup<NativeFunction<gpiodp_get_num_chips_native_t>>('gpiodp_get_num_chips')
       .asFunction();
 
-  final int Function(int chipIndex, Pointer<ChipDetails> result, Pointer<ErrorData> error) get_chip_details = _dynamicLibrary.lookup<NativeFunction<gpiodp_get_chip_details_native_t>>('gpiodp_get_chip_details').asFunction();
+  final int Function(int chipIndex, Pointer<ChipDetailsStruct> result, Pointer<ErrorData> error) get_chip_details = _dynamicLibrary.lookup<NativeFunction<gpiodp_get_chip_details_native_t>>('gpiodp_get_chip_details').asFunction();
   final int Function(int chipIndex,int lineIndex,Pointer<Int32> result, Pointer<ErrorData> error) get_line_handle = _dynamicLibrary.lookup<NativeFunction<gpiodp_get_line_handle_native_t>>('gpiodp_get_line_handle').asFunction();
   final int Function(int lineHandle, Pointer<LineDetails> result, Pointer<ErrorData> error) get_line_details = _dynamicLibrary.lookup<NativeFunction<gpiodp_get_line_details_native_t>>('gpiodp_get_line_details').asFunction();
   final int Function(Pointer<LineConfig> lineConfig, Pointer<ErrorData> error) request_line = _dynamicLibrary.lookup<NativeFunction<gpiodp_request_line_native_t>>('gpiodp_request_line').asFunction();
@@ -65,11 +65,12 @@ class LibraryProxyGPIOD {
   final int Function(Pointer<Int32> result, Pointer<ErrorData> error) supports_reconfiguration = _dynamicLibrary.lookup<NativeFunction<gpiodp_get_num_chips_native_t>>('gpiodp_supports_reconfiguration')
       .asFunction();
 
-  static LibraryProxyGPIOD _instance;
+  static final LibraryProxyGPIOD _instance = new LibraryProxyGPIOD._internal();
+  static bool _init = false;
 
   factory LibraryProxyGPIOD(){
-    if (_instance == null) {
-      _instance = new LibraryProxyGPIOD._internal();
+    if (_init == false) {
+      _init = true;
       _instance._registerDart_PostCObject(NativeApi.postCObject);
       _instance._registerDart_NewNativePort(NativeApi.newNativePort);
       _instance._registerDart_CloseNativePort(NativeApi.closeNativePort);

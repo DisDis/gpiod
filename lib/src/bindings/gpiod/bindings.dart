@@ -7,86 +7,88 @@ import 'types.dart';
 
 class GPIOD{
   final String libraryName = 'libgpiod.so';
-  DynamicLibrary _dynamicLibrary;
+  late DynamicLibrary _dynamicLibrary;
 
   // chip iteration
-  Pointer<gpiod_chip_iter> Function() chip_iter_new;
-  void Function(Pointer<gpiod_chip_iter>) chip_iter_free_noclose;
-  Pointer<gpiod_chip> Function(Pointer<gpiod_chip_iter>) chip_iter_next_noclose;
+  late Pointer<gpiod_chip_iter> Function() chip_iter_new;
+  late void Function(Pointer<gpiod_chip_iter>) chip_iter_free_noclose;
+  late Pointer<gpiod_chip> Function(Pointer<gpiod_chip_iter>) chip_iter_next_noclose;
 
   // GPIO lines
   ///unsigned int (*line_offset)(struct gpiod_line *line);
-  int Function(Pointer<gpiod_line> line) line_offset;
+  late int Function(Pointer<gpiod_line> line) line_offset;
   ///const char *(*line_name)(struct gpiod_line *line);
-  Pointer<Utf8> Function(Pointer<gpiod_line> line) line_name;
+  late Pointer<Utf8> Function(Pointer<gpiod_line> line) line_name;
   ///const char *(*line_consumer)(struct gpiod_line *line);
-  Pointer<Utf8> Function(Pointer<gpiod_line> line) line_consumer;
+  late Pointer<Utf8> Function(Pointer<gpiod_line> line) line_consumer;
   ///int (*line_direction)(struct gpiod_line *line);
-  int Function(Pointer<gpiod_line> line) line_direction;
+  late int Function(Pointer<gpiod_line> line) line_direction;
   ///int (*line_active_state)(struct gpiod_line *line);
-  int Function(Pointer<gpiod_line> line) line_active_state;
+  late int Function(Pointer<gpiod_line> line) line_active_state;
   ///int (*line_bias)(struct gpiod_line *line);
-  int Function(Pointer<gpiod_line> line) line_bias;
+  late int Function(Pointer<gpiod_line> line) line_bias;
   //FIXME: FFI does'n support bool??? https://github.com/dart-lang/sdk/issues/36855
   ///bool (*line_is_used)(struct gpiod_line *line);
-  int/*bool*/ Function(Pointer<gpiod_line> line) line_is_used;
+  late int/*bool*/ Function(Pointer<gpiod_line> line) line_is_used;
   ///bool (*line_is_open_drain)(struct gpiod_line *line);
-  int/*bool*/ Function(Pointer<gpiod_line> line) line_is_open_drain;
+  late int/*bool*/ Function(Pointer<gpiod_line> line) line_is_open_drain;
   ///bool (*line_is_open_source)(struct gpiod_line *line);
-  int/*bool*/ Function(Pointer<gpiod_line> line) line_is_open_source;
+  late int/*bool*/ Function(Pointer<gpiod_line> line) line_is_open_source;
   ///int (*line_update)(struct gpiod_line *line);
-  int Function(Pointer<gpiod_line> line) line_update;
+  late int Function(Pointer<gpiod_line> line) line_update;
   ///int (*line_request)(struct gpiod_line *line, const struct gpiod_line_request_config *config, int default_val);
-  int Function(Pointer<gpiod_line> line, Pointer<gpiod_line_request_config> config, int default_val) line_request;
+  late int Function(Pointer<gpiod_line> line, Pointer<gpiod_line_request_config> config, int default_val) line_request;
   ///int (*line_release)(struct gpiod_line *line);
-  int Function(Pointer<gpiod_line> line) line_release;
+  late int Function(Pointer<gpiod_line> line) line_release;
   ///bool (*line_is_requested)(struct gpiod_line *line);
-  int/*bool*/ Function(Pointer<gpiod_line> line) line_is_requested;
+  late int/*bool*/ Function(Pointer<gpiod_line> line) line_is_requested;
   ///bool (*line_is_free)(struct gpiod_line *line);
-  int/*bool*/ Function(Pointer<gpiod_line> line) line_is_free;
+  late int/*bool*/ Function(Pointer<gpiod_line> line) line_is_free;
   ///int (*line_get_value)(struct gpiod_line *line);
-  int Function(Pointer<gpiod_line> line) line_get_value;
+  late int Function(Pointer<gpiod_line> line) line_get_value;
   ///int (*line_set_value)(struct gpiod_line *line, int value);
-  int Function(Pointer<gpiod_line> line, int value) line_set_value;
+  late int Function(Pointer<gpiod_line> line, int value) line_set_value;
   ///int (*line_set_config)(struct gpiod_line *line, int direction, int flags, int value);
-  int Function(Pointer<gpiod_line> line, int direction, int flags, int value) line_set_config;
+  late int Function(Pointer<gpiod_line> line, int direction, int flags, int value) line_set_config;
   ///int (*line_event_wait_bulk)(struct gpiod_line_bulk *bulk, const struct timespec *timeout, struct gpiod_line_bulk *event_bulk);
-  int Function(Pointer<gpiod_line_bulk> bulk, Pointer<timespec> timeout, Pointer<gpiod_line_bulk> event_bulk) line_event_wait_bulk;
+  late int Function(Pointer<gpiod_line_bulk> bulk, Pointer<timespec> timeout, Pointer<gpiod_line_bulk> event_bulk) line_event_wait_bulk;
   ///int (*line_event_read)(struct gpiod_line *line, struct gpiod_line_event *event);
-  int Function(Pointer<gpiod_line> line, Pointer<gpiod_line_event> event) line_event_read;
+  late int Function(Pointer<gpiod_line> line, Pointer<gpiod_line_event> event) line_event_read;
   ///int (*line_event_get_fd)(struct gpiod_line *line);
-  int Function(Pointer<gpiod_line> line) line_event_get_fd;
+  late int Function(Pointer<gpiod_line> line) line_event_get_fd;
   ///struct gpiod_chip *(*line_get_chip)(struct gpiod_line *line);
-  Pointer<gpiod_chip> Function(Pointer<gpiod_line> line) line_get_chip;
+  late Pointer<gpiod_chip> Function(Pointer<gpiod_line> line) line_get_chip;
 
   // GPIO chips
   ///void (*chip_close)(struct gpiod_chip *chip);
-  void Function(Pointer<gpiod_chip>chip) chip_close;
+  late void Function(Pointer<gpiod_chip>chip) chip_close;
   ///const char *(*chip_name)(struct gpiod_chip *chip);
-  Pointer<Utf8> Function(Pointer<gpiod_chip> chip) chip_name;
+  late Pointer<Utf8> Function(Pointer<gpiod_chip> chip) chip_name;
   ///const char *(*chip_label)(struct gpiod_chip *chip);
-  Pointer<Utf8> Function(Pointer<gpiod_chip> chip) chip_label;
+  late Pointer<Utf8> Function(Pointer<gpiod_chip> chip) chip_label;
   ///unsigned int (*chip_num_lines)(struct gpiod_chip *chip);
-  int Function(Pointer<gpiod_chip> chip) chip_num_lines;
+  late int Function(Pointer<gpiod_chip> chip) chip_num_lines;
 
   // line iteration
   ///struct gpiod_line_iter *(*line_iter_new)(struct gpiod_chip *chip);
-  Pointer<gpiod_line_iter> Function(Pointer<gpiod_chip>chip) line_iter_new;
+  late Pointer<gpiod_line_iter> Function(Pointer<gpiod_chip>chip) line_iter_new;
   ///void (*line_iter_free)(struct gpiod_line_iter *iter);
-  void Function(Pointer<gpiod_line_iter> iter) line_iter_free;
+  late void Function(Pointer<gpiod_line_iter> iter) line_iter_free;
   ///struct gpiod_line *(*line_iter_next)(struct gpiod_line_iter *iter);
-  Pointer<gpiod_line> Function(Pointer<gpiod_line_iter> iter) line_iter_next;
+  late Pointer<gpiod_line> Function(Pointer<gpiod_line_iter> iter) line_iter_next;
 
   // misc
   ///const char *(*version_string)(void);
-  Pointer<Utf8> Function() version_string;
+  late Pointer<Utf8> Function() version_string;
 
-  static GPIOD _instance;
+  static GPIOD? _instance;
   factory GPIOD(){
     if (_instance ==null ){
       _instance = new GPIOD._internal();
+      return _instance as GPIOD;
     }
-    return _instance;
+    else
+    return _instance as GPIOD;
   }
   GPIOD._internal(){
     _dynamicLibrary = DynamicLibrary.open(libraryName);

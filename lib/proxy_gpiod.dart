@@ -77,7 +77,7 @@ class _ProxyGpiodPlatformSide {
   static bool _portIsRegistered = false;
 
   static GPIOError _createError(Pointer<ErrorData> _error){
-    return new GPIOError(_error.ref.error!=null && _error.ref.error.address != 0 ?Utf8.fromUtf8(_error.ref.error): 'code = ${_error.ref.code}');
+    return new GPIOError(_error.ref.error!=null && _error.ref.error.address != 0 ?_error.ref.error.toDartString(): 'code = ${_error.ref.code}');
   } 
 
   static StreamController<_GlobalSignalEvent> _streamController = new StreamController<_GlobalSignalEvent>.broadcast();
@@ -101,8 +101,8 @@ class _ProxyGpiodPlatformSide {
         .map((arg) => _GlobalSignalEvent._fromList(arg as List));*/
   }
 
-  static Pointer<ErrorData> _errorData = allocate<ErrorData>();
-  static Pointer<Int32> _resultData = allocate<Int32>();
+  static Pointer<ErrorData> _errorData = malloc.allocate<ErrorData>(sizeOf<ErrorData>());
+  static Pointer<Int32> _resultData = malloc.allocate<Int32>(sizeOf<Int32>());
   static int getNumChips() {
     if (_proxyGPIOD.get_num_chips(_resultData, _errorData) != 0){
         throw _createError(_errorData);
@@ -111,11 +111,16 @@ class _ProxyGpiodPlatformSide {
   }
 
   static ChipDetails getChipDetails(int chipIndex) {
-    var chipDetails = ChipDetails.allocate();
-    if (_proxyGPIOD.get_chip_details(chipIndex, chipDetails.addressOf, _errorData) != 0){
+    var chipDetails = malloc.allocate<ChipDetailsStruct>(sizeOf<ChipDetailsStruct>());
+    try {
+      if (_proxyGPIOD.get_chip_details(
+          chipIndex, chipDetails, _errorData) != 0) {
         throw _createError(_errorData);
+      }
+      return ChipDetails.from(chipDetails.ref);
+    } finally{
+      malloc.free(chipDetails);
     }
-    return chipDetails;
   }
 
   static int getLineHandle(int chipIndex, int lineIndex) {
@@ -126,39 +131,49 @@ class _ProxyGpiodPlatformSide {
   }
 
   static LineInfo getLineInfo(int lineHandle){
-    var lineDetails = LineDetails.allocate();
-    if (_proxyGPIOD.get_line_details(lineHandle, lineDetails.addressOf, _errorData) != 0){
+    final lineDetails = malloc.allocate<LineDetails>(sizeOf<LineDetails>());
+    try {
+      if (_proxyGPIOD.get_line_details(
+          lineHandle, lineDetails, _errorData) != 0) {
         throw _createError(_errorData);
+      }
+      return LineInfo._fromStruct(lineDetails.ref);
     }
-    return LineInfo._fromStruct(lineDetails);
+    finally{
+      malloc.free(lineDetails);
+    }
   }
 
   static void requestLine(
-      {int lineHandle,
-        String consumer,
-        LineDirection direction,
-        OutputMode outputMode,
-        Bias bias,
-        ActiveState activeState,
-        Set<SignalEdge> triggers,
-        bool initialValue}) {
+      {int lineHandle = 0,
+        String consumer = '',
+        LineDirection direction = LineDirection.input,
+        OutputMode? outputMode,
+        Bias? bias,
+        ActiveState? activeState,
+        Set<SignalEdge>? triggers,
+        bool initialValue = false}) {
     int triggersValue = 0;
     if (triggers != null) {
       triggers.forEach((element) {
         triggersValue |= element.value;
       });
     }
-    var lineConfig = LineConfig.allocate();
-    lineConfig.lineHandle = lineHandle;
-    lineConfig.consumer = Utf8.toUtf8(consumer);
-    lineConfig.direction = direction.value;
-    lineConfig.outputMode = outputMode==null? 0 : outputMode.value;
-    lineConfig.bias = bias==null?0: bias.value;
-    lineConfig.activeState = activeState==null? 0:activeState.value;
-    lineConfig.triggers = triggersValue;
-    lineConfig.initialValue = initialValue==null?0 : initialValue? 1 : 0;
-    if (_proxyGPIOD.request_line(lineConfig.addressOf, _errorData) != 0){
+    var lineConfig = malloc.allocate<LineConfig>(sizeOf<LineConfig>());
+    try{
+    lineConfig.ref.lineHandle = lineHandle;
+    lineConfig.ref.consumer = consumer.toNativeUtf8();
+    lineConfig.ref.direction = direction.value;
+    lineConfig.ref.outputMode = outputMode==null? 0 : outputMode.value;
+    lineConfig.ref.bias = bias==null?0: bias.value;
+    lineConfig.ref.activeState = activeState==null? 0:activeState.value;
+    lineConfig.ref.triggers = triggersValue;
+    lineConfig.ref.initialValue = initialValue? 1 : 0;
+    if (_proxyGPIOD.request_line(lineConfig, _errorData) != 0){
         throw _createError(_errorData);
+    }}
+    finally{
+      malloc.free(lineConfig);
     }
   }
 
@@ -169,21 +184,26 @@ class _ProxyGpiodPlatformSide {
   }
 
   static void reconfigureLine(
-      {int lineHandle,
-        LineDirection direction,
-        OutputMode outputMode,
-        Bias bias,
-        ActiveState activeState,
-        bool initialValue}) {
-    var lineConfig = LineConfig.allocate();
-    lineConfig.lineHandle = lineHandle;
-    lineConfig.direction = direction.value;
-    lineConfig.outputMode = outputMode==null? 0 : outputMode.value;
-    lineConfig.bias = bias==null?0: bias.value;
-    lineConfig.activeState = activeState==null?0:activeState.value;
-    lineConfig.initialValue = initialValue==null?0 : initialValue? 1 : 0;
-    if (_proxyGPIOD.reconfigure_line(lineConfig.addressOf, _errorData) != 0){
+      {int lineHandle = 0,
+        LineDirection direction= LineDirection.input,
+        OutputMode? outputMode,
+        Bias bias = Bias.unknown,
+        ActiveState? activeState,
+        bool initialValue = false}) {
+    var lineConfig = malloc.allocate<LineConfig>(sizeOf<LineConfig>());
+    try {
+      lineConfig.ref.lineHandle = lineHandle;
+      lineConfig.ref.direction = direction.value;
+      lineConfig.ref.outputMode = outputMode == null ? 0 : outputMode.value;
+      lineConfig.ref.bias = bias.value;
+      lineConfig.ref.activeState = activeState == null ? 0 : activeState.value;
+      lineConfig.ref.initialValue = initialValue ? 1 : 0;
+      if (_proxyGPIOD.reconfigure_line(lineConfig, _errorData) != 0) {
         throw _createError(_errorData);
+      }
+    }
+    finally {
+      malloc.free(lineConfig);
     }
   }
 
@@ -223,7 +243,7 @@ class ProxyGpiod {
   ProxyGpiod._internal(
       this.chips, this.supportsBias, this.supportsLineReconfiguration);
 
-  static ProxyGpiod _instance;
+  static ProxyGpiod? _instance;
 
   /// The list of GPIO chips attached to this system.
   final List<GpioChip> chips;
@@ -238,7 +258,7 @@ class ProxyGpiod {
   /// See [GpioLine.reconfigure].
   final bool supportsLineReconfiguration;
 
-  Stream<_GlobalSignalEvent> __onGlobalSignalEvent;
+  Stream<_GlobalSignalEvent>? __onGlobalSignalEvent;
 
   /// Gets the global instance of [ProxyGpiod].
   ///
@@ -254,12 +274,12 @@ class ProxyGpiod {
       _instance = ProxyGpiod._internal(chips, bias, reconfig);
     }
 
-    return _instance;
+    return _instance as ProxyGpiod;
   }
 
   Stream<_GlobalSignalEvent> get _onGlobalSignalEvent {
     __onGlobalSignalEvent ??= _ProxyGpiodPlatformSide.receiveBroadcastStream();//new StreamController<_GlobalSignalEvent>.broadcast().stream;
-    return __onGlobalSignalEvent;
+    return __onGlobalSignalEvent as Stream<_GlobalSignalEvent>;
   }
 
   Stream<SignalEvent> _onSignalEvent(int lineHandle) {
@@ -303,7 +323,7 @@ class GpioChip {
     final lines = List.generate(
         details.numLines, (i) => GpioLine._fromHandle(_ProxyGpiodPlatformSide.getLineHandle(chipIndex, i)));
 
-    return GpioChip._(chipIndex, Utf8.fromUtf8(details.name), Utf8.fromUtf8(details.label),
+    return GpioChip._(chipIndex, details.name, details.label,
         details.numLines, List.unmodifiable(lines));
   }
 
@@ -323,13 +343,13 @@ class LineInfo {
   ///
   /// For example, `PWR_LED_OFF` is the name of a GPIO line on
   /// Raspberry Pi.
-  final String name;
+  final String? name;
 
   /// A label given to the line by the application currently using this
   /// line, ideally describing what the line is used for right now.
   ///
   /// Can be null, is limited and truncated to 32 characters.
-  final String consumer;
+  final String? consumer;
 
   /// Whether the line is currently used by any application.
   final bool isUsed;
@@ -359,13 +379,13 @@ class LineInfo {
   const LineInfo._(
       {this.name,
         this.consumer,
-        this.direction,
-        this.outputMode,
-        this.bias,
-        this.activeState,
-        this.isUsed,
-        this.isRequested,
-        this.isFree});
+        this.direction = LineDirection.input,
+        this.outputMode = OutputMode.unknown,
+        this.bias = Bias.unknown,
+        this.activeState = ActiveState.unknown,
+        this.isUsed = false,
+        this.isRequested = false,
+        this.isFree = false});
 
   factory LineInfo._fromMap(Map<String, dynamic> map) {
     return LineInfo._(
@@ -375,9 +395,9 @@ class LineInfo {
             .firstWhere((v) => v.toString() == map['direction']),
         outputMode: OutputMode.values.firstWhere(
                 (v) => v.toString() == map['outputMode'],
-            orElse: () => null),
+            orElse: () => OutputMode.unknown),
         bias: Bias.values
-            .firstWhere((v) => v.toString() == map['bias'], orElse: () => null),
+            .firstWhere((v) => v.toString() == map['bias'], orElse: () => Bias.unknown),
         activeState: ActiveState.values
             .firstWhere((v) => v.toString() == map['activeState']),
         isUsed: map['isUsed'] as bool,
@@ -437,14 +457,14 @@ class LineInfo {
         return OutputMode.pushPull;
       }
     } else {
-      return null;
+      return OutputMode.unknown;
     }
   }
 
   static LineInfo _fromStruct(LineDetails lineDetails) {
     return LineInfo._(
-        name: lineDetails.name.address == 0? "" : Utf8.fromUtf8(lineDetails.name),
-        consumer: lineDetails.consumer.address == 0? "" : Utf8.fromUtf8(lineDetails.consumer),
+        name: lineDetails.name.address == 0? "" : lineDetails.name.toDartString(),
+        consumer: lineDetails.consumer.address == 0? "" : lineDetails.consumer.toDartString(), //Utf8.fromUtf8(lineDetails.consumer),
         direction: LineDirection.parse(lineDetails.direction),
         outputMode: _convertLineDetailsToOutputmode(lineDetails),
         bias: Bias.parse(lineDetails.bias),
@@ -527,9 +547,9 @@ class GpioLine {
 //  final _mutex = ReadWriteMutex();
   final int _lineHandle;
   //bool _requested;
-  LineInfo _info;
+  LineInfo? _info;
   Set<SignalEdge> _triggers;
-  bool _value;
+  bool? _value;
 
 //  void _assertNotWriteLocked() {
 //    if (_mutex.isWriteLocked) {
@@ -571,7 +591,7 @@ class GpioLine {
   /// Otherwise, returns a `Future<LineInfo>`.
   LineInfo get info {
     if (/*_mutex.isWriteLocked == false &&*/ _info != null) {
-      return _info;
+      return _info as LineInfo;
     }
 
     return _ProxyGpiodPlatformSide.getLineInfo(_lineHandle);
@@ -634,7 +654,7 @@ class GpioLine {
   }
 
   void _checkSupportsBiasValue(Bias bias) {
-    if ((bias != null) && !ProxyGpiod._instance.supportsBias) {
+    if ((bias != Bias.unknown) && !ProxyGpiod.getInstance().supportsBias) {
       throw UnsupportedError("Line bias is not supported on this platform."
           "Expected `bias` to be null.");
     }
@@ -650,8 +670,8 @@ class GpioLine {
   /// The ownership status in undefined until the [Future]
   /// returned by [request] completes.
   void requestInput(
-      {String consumer,
-        Bias bias,
+      {String? consumer,
+        Bias bias = Bias.unknown,
         ActiveState activeState = ActiveState.high,
         Set<SignalEdge> triggers = const {}}) {
     ArgumentError.checkNotNull(activeState, "activeState");
@@ -679,11 +699,11 @@ class GpioLine {
   }
 
   void requestOutput(
-      {String consumer,
+      {String consumer = '',
         OutputMode outputMode = OutputMode.pushPull,
-        Bias bias,
+        Bias bias = Bias.unknown,
         ActiveState activeState = ActiveState.high,
-        @required bool initialValue})  {
+        @required bool initialValue = false})  {
     ArgumentError.checkNotNull(outputMode, "outputMode");
     ArgumentError.checkNotNull(activeState, "activeState");
     ArgumentError.checkNotNull(initialValue, "initialValue");
@@ -711,7 +731,7 @@ class GpioLine {
   }
 
   void _checkSupportsLineReconfiguration() {
-    if (!ProxyGpiod._instance.supportsLineReconfiguration) {
+    if (!ProxyGpiod.getInstance().supportsLineReconfiguration) {
       throw UnsupportedError(
           "Can't reconfigure line because that's not supported by "
               "the underlying version of libgpiod. "
@@ -731,7 +751,7 @@ class GpioLine {
   /// You can't specify triggers here because of platform
   /// limitations.
   void reconfigureInput(
-      {Bias bias, ActiveState activeState = ActiveState.high}) {
+      {Bias bias = Bias.unknown, ActiveState activeState = ActiveState.high}) {
     ArgumentError.checkNotNull(activeState, "activeState");
     _checkSupportsBiasValue(bias);
     _checkSupportsLineReconfiguration();
@@ -765,9 +785,9 @@ class GpioLine {
   /// [ProxyGpiod.supportsLineReconfiguration] is false.
   void reconfigureOutput(
       {OutputMode outputMode = OutputMode.pushPull,
-        Bias bias,
+        Bias bias = Bias.unknown,
         ActiveState activeState = ActiveState.high,
-        @required bool initialValue}) {
+        @required bool initialValue = false}) {
     ArgumentError.checkNotNull(outputMode, "outputMode");
     _checkSupportsBiasValue(bias);
     ArgumentError.checkNotNull(activeState, "activeState");
@@ -822,7 +842,7 @@ class GpioLine {
     ArgumentError.checkNotNull(value, "value");
 
     //return _synchronizedRead(() async {
-      if (/*!_requested ||*/ _info.direction != LineDirection.output) {
+      if (/*!_requested ||*/ _info!= null && _info?.direction != LineDirection.output) {
         throw StateError(
             "Can't set line value because line is not configured as output.");
       }
@@ -866,8 +886,8 @@ class GpioLine {
         throw StateError("Can't get line value because line is not requested.");
       }*/
 
-      if (_info.direction == LineDirection.output) {
-        return _value;
+      if (_info != null && _info?.direction == LineDirection.output) {
+        return _value == null? false : _value as bool;
       } else {
         return //_synchronizedRead(   () =>
             _ProxyGpiodPlatformSide.getLineValue(_lineHandle);
@@ -893,7 +913,7 @@ class GpioLine {
         onError: (error, stackTrace) =>
             completer.setError(error, stackTrace));*/
     try {
-      var stream = ProxyGpiod._instance._onSignalEvent(_lineHandle);
+      var stream = ProxyGpiod.getInstance()._onSignalEvent(_lineHandle);
       completer.setSourceStream(stream);
     } catch(error, stackTrace){
       completer.setError(error, stackTrace);
