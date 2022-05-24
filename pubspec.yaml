@@ -1,7 +1,7 @@
 name: gpiod
 description:
   FFI for libgpiod, easy access to RaspberryPi gpio.
-version: 3.0.0
+version: 3.0.1
 repository: https://github.com/DisDis/gpiod
 
 environment:
