@@ -84,7 +84,7 @@ typedef line_get_chip_native_t = Pointer<gpiod_chip> Function(Pointer<gpiod_line
 
 // chip iteration
 /// struct gpiod_chip_iter *(*chip_iter_new)(void);
-typedef chip_iter_new_native_t = Pointer<void> Function();
+typedef chip_iter_new_native_t = Pointer<gpiod_chip_iter> Function();
 
 /// void (*chip_iter_free_noclose)(struct gpiod_chip_iter *iter);
 typedef chip_iter_free_noclose_native_t = Void Function(Pointer<gpiod_chip_iter>);
